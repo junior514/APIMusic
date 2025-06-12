@@ -53,65 +53,29 @@ src/
 ## ⚙️ Configuración
 
 ### application.properties
-# ===============================================
-# CONFIGURACIÓN DE SPOTIFY API
-# ===============================================
-spotify.client.id=${SPOTIFY_CLIENT_ID:188b9cb31fa44558b4ed977c833fe80b}
-spotify.client.secret=${SPOTIFY_CLIENT_SECRET:05fefb2a361d44078e342d2d99e7a011}
-spotify.redirect.uri=https://api.homorobotic.com.pe/api/auth/spotify/callback 
-spotify.api.base.url=https://api.spotify.com/v1 
-spotify.accounts.base.url=https://accounts.spotify.com 
-
-# ===============================================
-# CONFIGURACIÓN DEL SERVIDOR
-# ===============================================
-server.port=8080
-
-
-# ===============================================
-# CONFIGURACIÓN DE BASE DE DATOS MYSQL
-# ===============================================
-spring.datasource.url=jdbc:mysql://localhost:3307/apimusica
-spring.datasource.username=root
-spring.datasource.password=admin
+```properties
+# Configuración para MySQL
+spring.datasource.url=jdbc:mysql://localhost:3306/apimusic_db
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# ===============================================
-# CONFIGURACIÓN DE JPA/HIBERNATE
-# ===============================================
+# JPA/Hibernate
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 
-# ===============================================
-# CONFIGURACIÓN DE CORS
-# ===============================================
-cors.allowed.origins=${CORS_ALLOWED_ORIGINS:*}
-cors.allowed.methods=GET,POST,PUT,DELETE,OPTIONS
-cors.allowed.headers=*
-cors.allow.credentials=true
+# Puerto del servidor
+server.port=8080
 
-# ===============================================
-# CONFIGURACIÓN DE LOGGING
-# ===============================================
-logging.level.com.tupackage=DEBUG
-logging.level.org.springframework.web=DEBUG
-logging.level.org.springframework.security=DEBUG
-logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
-
-# ===============================================
-# CONFIGURACIÓN DE JACKSON (JSON)
-# ===============================================
-spring.jackson.default-property-inclusion=NON_NULL
-spring.jackson.serialization.write-dates-as-timestamps=false
-
-# ===============================================
-# CONFIGURACIÓN DE ACTUATOR (OPCIONAL)
-# ===============================================
-management.endpoints.web.exposure.include=health,info
-management.endpoint.health.show-details=when-authorized
+# Configuración de Spotify API
+spotify.client.id=tu_client_id_de_spotify
+spotify.client.secret=tu_client_secret_de_spotify
+spotify.redirect.uri=http://localhost:8080/api/auth/spotify/callback
+spotify.auth.url=https://accounts.spotify.com/authorize
+spotify.token.url=https://accounts.spotify.com/api/token
+spotify.api.url=https://api.spotify.com/v1
+```
 
 ### 🎵 Configuración de Spotify API
 
