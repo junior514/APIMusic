@@ -1,6 +1,10 @@
 package com.example.APIMusic.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TrackDto {
     
     private String id;
@@ -20,6 +24,12 @@ public class TrackDto {
     
     @JsonProperty("preview_url")
     private String previewUrl;
+    
+    @JsonProperty("track_number")
+    private Integer trackNumber;
+    
+    @JsonProperty("disc_number")
+    private Integer discNumber;
     
     // Constructores
     public TrackDto() {}
@@ -51,4 +61,22 @@ public class TrackDto {
     
     public String getPreviewUrl() { return previewUrl; }
     public void setPreviewUrl(String previewUrl) { this.previewUrl = previewUrl; }
+    
+    public Integer getTrackNumber() { return trackNumber; }
+    public void setTrackNumber(Integer trackNumber) { this.trackNumber = trackNumber; }
+    
+    public Integer getDiscNumber() { return discNumber; }
+    public void setDiscNumber(Integer discNumber) { this.discNumber = discNumber; }
+    
+    @Override
+    public String toString() {
+        return "TrackDto{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", artists=" + (artists != null ? artists.size() + " artists" : "no artists") +
+                ", album=" + (album != null ? album.getName() : "no album") +
+                ", durationMs=" + durationMs +
+                ", popularity=" + popularity +
+                '}';
+    }
 }

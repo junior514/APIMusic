@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class SpotifyApiService {
     
@@ -54,8 +56,9 @@ public class SpotifyApiService {
     
     /**
      * Obtener información de una canción por ID
+     * CORREGIDO: Ahora usa Optional para manejar casos null
      */
-    public TrackDto getTrackById(String trackId) {
+    public Optional<TrackDto> getTrackById(String trackId) {
         String token = authService.getClientCredentialsToken();
         String url = spotifyConfig.getApiBaseUrl() + "/tracks/" + trackId;
         
@@ -65,17 +68,20 @@ public class SpotifyApiService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         
         try {
-            ResponseEntity<TrackDto> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, TrackDto.class);
+            ResponseEntity<String> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, String.class);
             
-            if (response.getStatusCode() == HttpStatus.OK) {
-                return response.getBody();
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                TrackDto track = parseTrackFromResponse(response.getBody());
+                return Optional.ofNullable(track);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error obteniendo canción: " + e.getMessage());
+            System.err.println("Error obteniendo canción con ID " + trackId + ": " + e.getMessage());
+            // En lugar de lanzar excepción, devolvemos Optional.empty()
+            return Optional.empty();
         }
         
-        return null;
+        return Optional.empty();
     }
     
     /**
@@ -100,7 +106,21 @@ public class SpotifyApiService {
             }
             return new ArrayList<>();
         } catch (Exception e) {
-            throw new RuntimeException("Error obteniendo top tracks: " + e.getMessage());
+            System.err.println("Error obteniendo top tracks: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Método para parsear una sola canción desde la respuesta JSON
+     */
+    private TrackDto parseTrackFromResponse(String responseBody) {
+        try {
+            JsonNode root = objectMapper.readTree(responseBody);
+            return objectMapper.treeToValue(root, TrackDto.class);
+        } catch (Exception e) {
+            System.err.println("Error parseando respuesta de track: " + e.getMessage());
+            throw new RuntimeException("Error parseando respuesta de track: " + e.getMessage());
         }
     }
     
@@ -118,6 +138,7 @@ public class SpotifyApiService {
             
             return tracks;
         } catch (Exception e) {
+            System.err.println("Error parseando respuesta de búsqueda: " + e.getMessage());
             throw new RuntimeException("Error parseando respuesta de búsqueda: " + e.getMessage());
         }
     }

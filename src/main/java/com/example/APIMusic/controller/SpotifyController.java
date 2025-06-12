@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/spotify")
 @CrossOrigin(origins = "*")
@@ -19,7 +21,6 @@ public class SpotifyController {
     @Autowired
     private SpotifyAuthService spotifyAuthService;
     
-    
     @GetMapping("/search")
     public ResponseEntity<List<TrackDto>> searchTracks(
             @RequestParam String q,
@@ -29,26 +30,30 @@ public class SpotifyController {
             List<TrackDto> tracks = spotifyApiService.searchTracks(q, limit);
             return ResponseEntity.ok(tracks);
         } catch (Exception e) {
+            System.err.println("Error en search: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
     
-    
+    /**
+     * CORREGIDO: Ahora maneja Optional correctamente
+     */
     @GetMapping("/track/{id}")
     public ResponseEntity<TrackDto> getTrack(@PathVariable String id) {
         try {
-            TrackDto track = spotifyApiService.getTrackById(id);
-            if (track != null) {
-                return ResponseEntity.ok(track);
+            Optional<TrackDto> trackOptional = spotifyApiService.getTrackById(id);
+            
+            if (trackOptional.isPresent()) {
+                return ResponseEntity.ok(trackOptional.get());
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
+            System.err.println("Error en getTrack: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
     
-   
     @GetMapping("/top-tracks")
     public ResponseEntity<List<TrackDto>> getTopTracks(
             @RequestParam(defaultValue = "US") String country) {
@@ -57,10 +62,10 @@ public class SpotifyController {
             List<TrackDto> tracks = spotifyApiService.getTopTracks(country);
             return ResponseEntity.ok(tracks);
         } catch (Exception e) {
+            System.err.println("Error en getTopTracks: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
-    
     
     @GetMapping("/auth/url")
     public ResponseEntity<Map<String, String>> getAuthUrl() {
@@ -73,6 +78,7 @@ public class SpotifyController {
                 "state", state
             ));
         } catch (Exception e) {
+            System.err.println("Error en getAuthUrl: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }

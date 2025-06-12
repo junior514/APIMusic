@@ -1,11 +1,15 @@
 package com.example.APIMusic.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-class AlbumDto {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class AlbumDto {
     private String id;
     private String name;
+    private String href;
+    private String uri;
     
     @JsonProperty("album_type")
     private String albumType;
@@ -21,12 +25,27 @@ class AlbumDto {
     @JsonProperty("release_date")
     private String releaseDate;
     
+    @JsonProperty("release_date_precision")
+    private String releaseDatePrecision;
+    
+    // Los álbumes también tienen artistas
+    private List<ArtistDto> artists;
+    
+    // Constructor por defecto
+    public AlbumDto() {}
+    
     // Getters y Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    
+    public String getHref() { return href; }
+    public void setHref(String href) { this.href = href; }
+    
+    public String getUri() { return uri; }
+    public void setUri(String uri) { this.uri = uri; }
     
     public String getAlbumType() { return albumType; }
     public void setAlbumType(String albumType) { this.albumType = albumType; }
@@ -42,4 +61,21 @@ class AlbumDto {
     
     public String getReleaseDate() { return releaseDate; }
     public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
+    
+    public String getReleaseDatePrecision() { return releaseDatePrecision; }
+    public void setReleaseDatePrecision(String releaseDatePrecision) { this.releaseDatePrecision = releaseDatePrecision; }
+    
+    public List<ArtistDto> getArtists() { return artists; }
+    public void setArtists(List<ArtistDto> artists) { this.artists = artists; }
+    
+    @Override
+    public String toString() {
+        return "AlbumDto{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", albumType='" + albumType + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", artists=" + (artists != null ? artists.size() + " artists" : "no artists") +
+                '}';
+    }
 }
