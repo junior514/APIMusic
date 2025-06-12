@@ -35,10 +35,7 @@ public class AuthController {
         }
     }
     
-    /**
-     * Callback endpoint para Spotify OAuth
-     * GET /api/auth/spotify/callback?code=...&state=...
-     */
+   
     
     @PostMapping("/client-token")
     public ResponseEntity<Map<String, String>> getClientToken() {

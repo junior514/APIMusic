@@ -35,9 +35,7 @@ public class SpotifyController {
         }
     }
     
-    /**
-     * CORREGIDO: Ahora maneja Optional correctamente
-     */
+    
     @GetMapping("/track/{id}")
     public ResponseEntity<TrackDto> getTrack(@PathVariable String id) {
         try {

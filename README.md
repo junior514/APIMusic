@@ -1,9 +1,9 @@
 # API Music - Backend
 
-## 📋 Descripción
+## Descripción
 API REST desarrollada en **Spring Boot** para la gestión de usuarios de una aplicación de música. Permite administrar usuarios, perfiles y favoritos (músicas, álbumes y playlists) con integración completa a **Spotify Web API** para obtener información musical en tiempo real.
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 - **Java 17+**
 - **Spring Boot 3.x**
 - **Spring Data JPA**
@@ -11,7 +11,7 @@ API REST desarrollada en **Spring Boot** para la gestión de usuarios de una apl
 - **Maven** (Gestión de dependencias)
 - **Spotify Web API** (Integración musical)
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 ```
 src/
 ├── main/
@@ -50,7 +50,7 @@ src/
 │       └── application.properties
 ```
 
-## ⚙️ Configuración
+## Configuración
 
 ### application.properties
 ```properties
@@ -77,7 +77,7 @@ spotify.token.url=https://accounts.spotify.com/api/token
 spotify.api.url=https://api.spotify.com/v1
 ```
 
-### 🎵 Configuración de Spotify API
+### Configuración de Spotify API
 
 #### Obtener credenciales de Spotify:
 1. Ve a [Spotify for Developers](https://developer.spotify.com/dashboard)
@@ -86,7 +86,7 @@ spotify.api.url=https://api.spotify.com/v1
 4. Copia el **Client ID** y **Client Secret**
 5. Actualiza las credenciales en `application.properties`
 
-## 🚀 Instalación y Ejecución
+## Instalación y Ejecución
 
 ### Requisitos previos
 - Java 17 o superior
@@ -124,9 +124,9 @@ mvn spring-boot:run
 - Aplicación disponible en: `http://localhost:8080`
 - Verificar configuración: `GET http://localhost:8080/api/auth/verify-config`
 
-## 📋 Endpoints Disponibles
+## Endpoints Disponibles
 
-### 🔐 Autenticación con Spotify (`/api/auth`)
+### Autenticación con Spotify (`/api/auth`)
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -135,7 +135,7 @@ mvn spring-boot:run
 | `POST` | `/api/auth/client-token-alt` | Método alternativo para token |
 | `GET` | `/api/auth/verify-config` | Verificar configuración de Spotify |
 
-### 🎵 API de Spotify (`/api/spotify`)
+### API de Spotify (`/api/spotify`)
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -144,7 +144,7 @@ mvn spring-boot:run
 | `GET` | `/api/spotify/top-tracks` | Obtener canciones populares |
 | `GET` | `/api/spotify/auth/url` | Obtener URL de autorización |
 
-### 👥 Gestión de Usuarios (`/api/usuarios`)
+### Gestión de Usuarios (`/api/usuarios`)
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -156,14 +156,14 @@ mvn spring-boot:run
 | `GET` | `/api/usuarios/email/{email}` | Buscar usuario por email |
 | `POST` | `/api/usuarios/login` | Login de usuario |
 
-### 👤 Gestión de Perfil
+### Gestión de Perfil
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
 | `GET` | `/api/usuarios/{id}/perfil` | Obtener perfil del usuario |
 | `PUT` | `/api/usuarios/{id}/perfil` | Actualizar perfil del usuario |
 
-### ⭐ Gestión de Favoritos
+### Gestión de Favoritos
 
 #### Músicas Favoritas
 | Método | Endpoint | Descripción |
@@ -186,7 +186,7 @@ mvn spring-boot:run
 | `POST` | `/api/usuarios/{id}/favoritos/playlists` | Agregar playlist a favoritos |
 | `DELETE` | `/api/usuarios/{id}/favoritos/playlists/{playlistId}` | Eliminar playlist de favoritos |
 
-## 📄 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### 1. Listar Usuarios (GET)
 ```bash
@@ -271,7 +271,7 @@ POST http://localhost:8080/api/auth/client-token
 }
 ```
 
-## 📊 Modelos de Datos
+## Modelos de Datos
 
 ### Usuario
 ```json
@@ -314,20 +314,17 @@ POST http://localhost:8080/api/auth/client-token
 }
 ```
 
-## 📋 Documentación con Postman
+## Documentación con Postman
 
-### 🔗 [**COLECCIÓN DE POSTMAN - API SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
-
-### 🔗 [**COLECCIÓN DE POSTMAN - API MUSIC CON SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
-
+### Colección de Postman - API Music
 
 La colección incluye:
-- ✅ Todos los endpoints de **Usuarios** (Listar y Guardar principales)
-- ✅ Endpoints de **Autenticación con Spotify**
-- ✅ Endpoints de **Búsqueda Musical**
-- ✅ Endpoints de **Gestión de Favoritos**
-- ✅ Ejemplos de requests y responses
-- ✅ Variables de entorno configuradas
+- Todos los endpoints de **Usuarios** (Listar y Guardar principales)
+- Endpoints de **Autenticación con Spotify**
+- Endpoints de **Búsqueda Musical**
+- Endpoints de **Gestión de Favoritos**
+- Ejemplos de requests y responses
+- Variables de entorno configuradas
 
 ### Configuración en Postman:
 1. **Importar la colección** usando el enlace
@@ -336,7 +333,7 @@ La colección incluye:
    - `user_id`: `1` (para pruebas)
 3. **Ejecutar los endpoints** en el orden sugerido
 
-## 🔧 Orden Recomendado de Implementación
+## Orden Recomendado de Implementación
 
 ### 1. Configuración Básica
 ```bash
@@ -362,7 +359,7 @@ GET /api/usuarios/{id}/favoritos/musicas
 POST /api/usuarios/{id}/favoritos/musicas
 ```
 
-## 🔍 Códigos de Estado HTTP
+## Códigos de Estado HTTP
 
 | Código | Descripción |
 |--------|-------------|
@@ -374,7 +371,7 @@ POST /api/usuarios/{id}/favoritos/musicas
 | `404 Not Found` | Recurso no encontrado |
 | `500 Internal Server Error` | Error del servidor |
 
-## 🛠️ Desarrollo
+## Desarrollo
 
 ### Ejecutar en modo desarrollo:
 ```bash
@@ -386,7 +383,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 mvn test
 ```
 
-## 📞 Soporte
+## Soporte
 
 Si tienes problemas con la configuración:
 
@@ -399,16 +396,15 @@ Si tienes problemas con la configuración:
 
 3. **Verificar que la base de datos esté corriendo**
 
-## 🎯 Funcionalidades Principales
+## Funcionalidades Principales
 
-- ✅ **Listar usuarios** - Endpoint principal para obtener todos los usuarios
-- ✅ **Guardar usuarios** - Endpoint principal para crear nuevos usuarios
-- ✅ **Integración completa con Spotify** - Búsqueda y obtención de música
-- ✅ **Gestión de favoritos** - Músicas, álbumes y playlists
-- ✅ **Autenticación OAuth 2.0** con Spotify
-- ✅ **API RESTful** completa con CRUD operations
+- **Listar usuarios** - Endpoint principal para obtener todos los usuarios
+- **Guardar usuarios** - Endpoint principal para crear nuevos usuarios
+- **Integración completa con Spotify** - Búsqueda y obtención de música
+- **Gestión de favoritos** - Músicas, álbumes y playlists
+- **Autenticación OAuth 2.0** con Spotify
+- **API RESTful** completa con CRUD operations
 
 ---
 
-
-**🚀 ¡La API está lista para ser consumida por tu frontend!** 🎵
+**La API está lista para ser consumida por tu frontend!**
