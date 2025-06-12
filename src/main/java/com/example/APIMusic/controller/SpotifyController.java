@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 @RestController
 @RequestMapping("/api/spotify")
-@CrossOrigin(origins = "*") // Para desarrollo. En producción especifica dominios
+@CrossOrigin(origins = "*")
 public class SpotifyController {
     
     @Autowired
@@ -19,10 +19,7 @@ public class SpotifyController {
     @Autowired
     private SpotifyAuthService spotifyAuthService;
     
-    /**
-     * Endpoint para buscar canciones
-     * GET /api/spotify/search?q=nombre_cancion&limit=10
-     */
+    
     @GetMapping("/search")
     public ResponseEntity<List<TrackDto>> searchTracks(
             @RequestParam String q,
@@ -36,10 +33,7 @@ public class SpotifyController {
         }
     }
     
-    /**
-     * Endpoint para obtener información de una canción
-     * GET /api/spotify/track/{id}
-     */
+    
     @GetMapping("/track/{id}")
     public ResponseEntity<TrackDto> getTrack(@PathVariable String id) {
         try {
@@ -54,10 +48,7 @@ public class SpotifyController {
         }
     }
     
-    /**
-     * Endpoint para obtener top tracks por país
-     * GET /api/spotify/top-tracks?country=US
-     */
+   
     @GetMapping("/top-tracks")
     public ResponseEntity<List<TrackDto>> getTopTracks(
             @RequestParam(defaultValue = "US") String country) {
@@ -70,10 +61,7 @@ public class SpotifyController {
         }
     }
     
-    /**
-     * Endpoint para obtener URL de autorización
-     * GET /api/spotify/auth/url
-     */
+    
     @GetMapping("/auth/url")
     public ResponseEntity<Map<String, String>> getAuthUrl() {
         try {

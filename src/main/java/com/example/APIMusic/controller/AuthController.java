@@ -15,10 +15,8 @@ public class AuthController {
     @Autowired
     private SpotifyAuthService spotifyAuthService;
     
-    /**
-     * Callback endpoint para Spotify OAuth
-     * GET /api/auth/spotify/callback?code=...&state=...
-     */
+
+    
     @GetMapping("/spotify/callback")
     public ResponseEntity<SpotifyTokenDto> spotifyCallback(
             @RequestParam String code,
@@ -38,9 +36,10 @@ public class AuthController {
     }
     
     /**
-     * Endpoint para obtener token usando Client Credentials
-     * POST /api/auth/client-token
+     * Callback endpoint para Spotify OAuth
+     * GET /api/auth/spotify/callback?code=...&state=...
      */
+    
     @PostMapping("/client-token")
     public ResponseEntity<Map<String, String>> getClientToken() {
         try {
@@ -53,10 +52,7 @@ public class AuthController {
         }
     }
     
-    /**
-     * Endpoint alternativo para obtener token
-     * POST /api/auth/client-token-alt
-     */
+   
     @PostMapping("/client-token-alt")
     public ResponseEntity<Map<String, String>> getClientTokenAlternative() {
         try {
@@ -69,10 +65,7 @@ public class AuthController {
         }
     }
     
-    /**
-     * Endpoint para verificar configuración
-     * GET /api/auth/verify-config
-     */
+   
     @GetMapping("/verify-config")
     public ResponseEntity<Map<String, Object>> verifyConfiguration() {
         try {
