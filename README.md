@@ -316,7 +316,10 @@ POST http://localhost:8080/api/auth/client-token
 
 ## Documentación con Postman
 
-### Colección de Postman - API Music
+###  [**COLECCIÓN DE POSTMAN - API SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
+
+###  [**COLECCIÓN DE POSTMAN - API MUSIC CON SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
+
 
 La colección incluye:
 - Todos los endpoints de **Usuarios** (Listar y Guardar principales)
