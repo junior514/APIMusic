@@ -42,8 +42,8 @@ mvn spring-boot:run
 ```bash
 POST http://localhost:8080/api/usuarios
 {
-  "nombre": "Juan",
-  "email": "juan@email.com",
+  "nombre": "Juior",
+  "email": "junior@Gemail.com",
   "contrasena": "123456"
 }
 ```
