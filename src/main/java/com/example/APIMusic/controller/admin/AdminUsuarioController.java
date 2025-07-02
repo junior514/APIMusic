@@ -82,13 +82,58 @@ public class AdminUsuarioController {
     @PostMapping("/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            if (usuarioService.eliminarUsuario(id)) {
-                redirectAttributes.addFlashAttribute("success", "Usuario eliminado correctamente");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el usuario");
+            // Verificar que el usuario existe antes de eliminar
+            Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
+            if (!usuarioOptional.isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Usuario no encontrado");
+                return "redirect:/admin/usuarios";
             }
+
+            Usuario usuario = usuarioOptional.get();
+
+            // Opcional: Verificar que no se esté eliminando el último admin
+            // (descomenta si quieres esta validación)
+            /*
+             * if (usuario.getRoles() != null && usuario.getRoles().contains(Rol.ADMIN)) {
+             * long adminCount = usuarioService.obtenerTodos().stream()
+             * .filter(u -> u.getRoles() != null && u.getRoles().contains(Rol.ADMIN))
+             * .count();
+             *
+             * if (adminCount <= 1) {
+             * redirectAttributes.addFlashAttribute("error",
+             * "No se puede eliminar el último administrador del sistema");
+             * return "redirect:/admin/usuarios";
+             * }
+             * }
+             */
+
+            // Intentar eliminar el usuario
+            boolean eliminado = usuarioService.eliminarUsuario(id);
+
+            if (eliminado) {
+                redirectAttributes.addFlashAttribute("success",
+                        "Usuario '" + usuario.getNombre() + "' eliminado correctamente");
+            } else {
+                redirectAttributes.addFlashAttribute("error",
+                        "No se pudo eliminar el usuario. Puede tener datos relacionados.");
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el usuario: " + e.getMessage());
+            // Log del error para debugging
+            System.err.println("Error al eliminar usuario con ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
+
+            // Mensaje más específico según el tipo de error
+            String mensajeError = "Error al eliminar el usuario";
+            if (e.getMessage().contains("constraint") || e.getMessage().contains("foreign key")) {
+                mensajeError = "No se puede eliminar el usuario porque tiene datos relacionados (playlists, canciones, etc.)";
+            } else if (e.getMessage().contains("not found")) {
+                mensajeError = "Usuario no encontrado";
+            } else {
+                mensajeError = "Error interno del servidor al eliminar el usuario";
+            }
+
+            redirectAttributes.addFlashAttribute("error", mensajeError);
         }
 
         return "redirect:/admin/usuarios";

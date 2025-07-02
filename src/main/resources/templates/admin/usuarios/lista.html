@@ -109,6 +109,8 @@
             border-radius: 8px;
             margin-bottom: 1rem;
             border: 1px solid transparent;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
         }
 
         .alert-success {
@@ -127,6 +129,22 @@
             background: #d1ecf1;
             border-color: #bee5eb;
             color: #0c5460;
+        }
+
+        .alert-close {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
         }
 
         /* Barra de búsqueda */
@@ -393,6 +411,118 @@
             margin-bottom: 2rem;
         }
 
+        /* Modal de confirmación */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .modal h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .modal p {
+            margin-bottom: 2rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .debug-info {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Loading state */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .search-form {
@@ -420,64 +550,10 @@
             .actions {
                 flex-direction: column;
             }
-        }
 
-        /* Modal de confirmación */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.show .modal {
-            transform: scale(1);
-        }
-
-        .modal h3 {
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        .modal p {
-            margin-bottom: 2rem;
-            color: #666;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-
-        .debug-info {
-            background: #e7f3ff;
-            border: 1px solid #b8daff;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
+            .modal {
+                margin: 1rem;
+            }
         }
 
         /* Animaciones */
@@ -490,6 +566,18 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
             }
         }
 
@@ -540,8 +628,14 @@
         </div>
 
         <!-- Alertas -->
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success">
+            <span th:text="${success}"></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
 
         <!-- Búsqueda y Filtros -->
         <div class="search-section">
@@ -627,9 +721,9 @@
                                         ✏️ Editar
                                     </a>
                                     <button type="button" class="btn btn-danger btn-sm"
-                                        th:onclick="'confirmarEliminacion(' + ${usuario.id} + ', \'' + ${usuario.nombre} + '\')'">
+                                        onclick="confirmarEliminacion(2, '')">
                                         🗑 Eliminar
-                                    </button>
+                                        </button>
                                 </div>
                             </td>
                         </tr>
@@ -665,12 +759,22 @@
     <!-- Modal de confirmación de eliminación -->
     <div id="confirmModal" class="modal-overlay">
         <div class="modal">
-            <h3>⚠️ Confirmar eliminación</h3>
-            <p id="confirmMessage">¿Estás seguro de que deseas eliminar este usuario?</p>
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <h3>Confirmar eliminación</h3>
+            </div>
+            <div id="confirmMessage">
+                <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                <div id="userDetails" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <strong>Usuario:</strong> <span id="userName"></span><br>
+                    <strong>Email:</strong> <span id="userEmail"></span>
+                </div>
+                <p style="color: #dc3545; font-weight: 500;">Esta acción no se puede deshacer.</p>
+            </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="cerrarModal()">❌ Cancelar</button>
                 <form id="deleteForm" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">🗑️ Eliminar</button>
+                    <button type="submit" class="btn btn-danger" id="deleteButton">🗑️ Eliminar</button>
                 </form>
             </div>
         </div>
@@ -679,15 +783,25 @@
     <!-- JavaScript -->
     <script>
         // Función para confirmar eliminación
-        function confirmarEliminacion(userId, userName) {
+        function confirmarEliminacion(userId, userName, userEmail) {
             const modal = document.getElementById('confirmModal');
-            const message = document.getElementById('confirmMessage');
             const form = document.getElementById('deleteForm');
+            const userNameSpan = document.getElementById('userName');
+            const userEmailSpan = document.getElementById('userEmail');
 
-            message.textContent = `¿Estás seguro de que deseas eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`;
+            // Actualizar información del usuario en el modal
+            userNameSpan.textContent = userName;
+            userEmailSpan.textContent = userEmail;
+
+            // Configurar el formulario
             form.action = `/admin/usuarios/eliminar/${userId}`;
 
             modal.classList.add('show');
+
+            // Enfocar el botón de cancelar para mejor UX
+            setTimeout(() => {
+                document.querySelector('.btn-secondary').focus();
+            }, 100);
         }
 
         // Función para cerrar modal
@@ -710,72 +824,75 @@
             }
         });
 
+        // Manejar el envío del formulario de eliminación
+        document.getElementById('deleteForm').addEventListener('submit', function (e) {
+            const deleteButton = document.getElementById('deleteButton');
+
+            // Mostrar estado de carga
+            deleteButton.classList.add('btn-loading');
+            deleteButton.disabled = true;
+            deleteButton.innerHTML = 'Eliminando...';
+
+            // No prevenir el envío del formulario
+            // e.preventDefault(); // Comentado para permitir el envío
+        });
+
         // Auto-ocultar alertas después de 5 segundos
         document.addEventListener('DOMContentLoaded', function () {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 setTimeout(() => {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 300);
+                    if (alert.parentElement) {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 300);
+                    }
                 }, 5000);
             });
         });
 
-        // Confirmar navegación si hay cambios no guardados
-        let formChanged = false;
+        // Búsqueda en tiempo real (opcional)
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    // Aquí podrías implementar búsqueda AJAX si lo deseas
+                    console.log('Búsqueda:', this.value);
+                }, 500);
+            });
+        }
 
-        document.querySelectorAll('input, select').forEach(element => {
-            element.addEventListener('change', () => {
-                formChanged = true;
+        // Confirmación antes de cerrar si hay cambios sin guardar
+        let hasChanges = false;
+
+        // Detectar cambios en formularios
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    hasChanges = true;
+                });
             });
         });
 
-        // Smooth scrolling para mejor UX
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+        // Advertir antes de salir de la página
+        window.addEventListener('beforeunload', function (e) {
+            if (hasChanges) {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+                e.returnValue = '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.';
+                return e.returnValue;
+            }
         });
 
-        // Tooltips simples para botones de acción
-        document.querySelectorAll('[title]').forEach(element => {
-            element.addEventListener('mouseenter', function () {
-                const tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                tooltip.textContent = this.getAttribute('title');
-                tooltip.style.cssText = `
-                    position: absolute;
-                    background: #333;
-                    color: white;
-                    padding: 0.5rem;
-                    border-radius: 4px;
-                    font-size: 0.8rem;
-                    z-index: 1000;
-                    pointer-events: none;
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                `;
-                document.body.appendChild(tooltip);
-
-                const rect = this.getBoundingClientRect();
-                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-                tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
-
-                setTimeout(() => tooltip.style.opacity = '1', 10);
-
-                this.addEventListener('mouseleave', () => {
-                    tooltip.remove();
-                }, { once: true });
+        // Resetear flag cuando se envía un formulario
+        forms.forEach(form => {
+            form.addEventListener('submit', () => {
+                hasChanges = false;
             });
         });
     </script>
