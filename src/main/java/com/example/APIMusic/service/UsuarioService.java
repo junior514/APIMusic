@@ -1,16 +1,9 @@
-// UsuarioService.java
 package com.example.APIMusic.service;
 
 import com.example.APIMusic.entity.Usuario;
-import com.example.APIMusic.entity.PerfilUsuario;
-import com.example.APIMusic.entity.MusicaFavorita;
-import com.example.APIMusic.entity.AlbumFavorito;
-import com.example.APIMusic.entity.PlaylistFavorita;
 import com.example.APIMusic.repository.UsuarioRepository;
-import com.example.APIMusic.repository.MusicaFavoritaRepository;
-import com.example.APIMusic.repository.AlbumFavoritoRepository;
-import com.example.APIMusic.repository.PlaylistFavoritaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,138 +16,80 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private MusicaFavoritaRepository musicaFavoritaRepository;
+    private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AlbumFavoritoRepository albumFavoritoRepository;
-
-    @Autowired
-    private PlaylistFavoritaRepository playlistFavoritaRepository;
-
-    // Métodos básicos CRUD
-    public List<Usuario> findAll() {
+    public List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> findById(Long id) {
+    public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id);
     }
 
-    public Usuario save(Usuario usuario) {
-        return usuarioRepository.save(usuario);
-    }
-
-    public void deleteById(Long id) {
-        usuarioRepository.deleteById(id);
-    }
-
-    public boolean existsById(Long id) {
-        return usuarioRepository.existsById(id);
-    }
-
-    public Optional<Usuario> findByEmail(String email) {
+    public Optional<Usuario> obtenerPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
 
-    // Método para login básico
-    public Optional<Usuario> login(String email, String contrasena) {
-        Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
-        if (usuario.isPresent() && usuario.get().getContrasena().equals(contrasena)) {
-            return usuario;
-        }
-        return Optional.empty();
+    public Usuario guardarUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
     }
 
-    // Métodos para manejo de perfil
-    public PerfilUsuario updatePerfil(Long usuarioId, PerfilUsuario perfilDetails) {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
-        if (usuarioOptional.isPresent()) {
-            Usuario usuario = usuarioOptional.get();
-            
-            if (usuario.getPerfil() != null) {
-                // Actualizar perfil existente
-                PerfilUsuario perfil = usuario.getPerfil();
-                perfil.setFotoUrl(perfilDetails.getFotoUrl());
-                perfil.setBio(perfilDetails.getBio());
-                return perfil;
-            } else {
-                // Crear nuevo perfil
-                PerfilUsuario nuevoPerfil = new PerfilUsuario();
-                nuevoPerfil.setFotoUrl(perfilDetails.getFotoUrl());
-                nuevoPerfil.setBio(perfilDetails.getBio());
-                nuevoPerfil.setUsuario(usuario);
-                usuario.setPerfil(nuevoPerfil);
-                usuarioRepository.save(usuario);
-                return nuevoPerfil;
+    /**
+     * Registra un nuevo usuario cifrando su contraseña
+     */
+    public Usuario registrar(Usuario usuario) {
+        // Cifrar la contraseña antes de guardar
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        return usuarioRepository.save(usuario);
+    }
+
+    /**
+     * Autentica un usuario verificando email y contraseña
+     */
+    public Usuario autenticar(String email, String contrasenaPlana) {
+        Optional<Usuario> usuarioOpt = obtenerPorEmail(email);
+
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            // Verificar si la contraseña plana coincide con la cifrada
+            if (passwordEncoder.matches(contrasenaPlana, usuario.getContrasena())) {
+                return usuario;
             }
         }
         return null;
     }
 
-    // Métodos para manejo de músicas favoritas
-    public List<MusicaFavorita> getMusicasFavoritas(Long usuarioId) {
-        return musicaFavoritaRepository.findByUsuarioId(usuarioId);
+    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
+        return usuarioRepository.findById(id).map(usuario -> {
+            usuario.setNombre(usuarioActualizado.getNombre());
+            if (usuarioActualizado.getApellido() != null) {
+                usuario.setApellido(usuarioActualizado.getApellido());
+            }
+            usuario.setEmail(usuarioActualizado.getEmail());
+
+            // Si se actualiza la contraseña, cifrarla
+            if (usuarioActualizado.getContrasena() != null &&
+                    !usuarioActualizado.getContrasena().isEmpty()) {
+                usuario.setContrasena(passwordEncoder.encode(usuarioActualizado.getContrasena()));
+            }
+
+            if (usuarioActualizado.getTelefono() != null) {
+                usuario.setTelefono(usuarioActualizado.getTelefono());
+            }
+            if (usuarioActualizado.getGenero() != null) {
+                usuario.setGenero(usuarioActualizado.getGenero());
+            }
+            if (usuarioActualizado.getFechaNacimiento() != null) {
+                usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
+            }
+
+            return usuarioRepository.save(usuario);
+        }).orElse(null);
     }
 
-    public MusicaFavorita addMusicaFavorita(Long usuarioId, MusicaFavorita musicaFavorita) {
-        Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
-        if (usuario.isPresent()) {
-            musicaFavorita.setUsuario(usuario.get());
-            return musicaFavoritaRepository.save(musicaFavorita);
-        }
-        return null;
-    }
-
-    public boolean removeMusicaFavorita(Long usuarioId, Long musicaId) {
-        Optional<MusicaFavorita> musicaFavorita = musicaFavoritaRepository.findByIdAndUsuarioId(musicaId, usuarioId);
-        if (musicaFavorita.isPresent()) {
-            musicaFavoritaRepository.delete(musicaFavorita.get());
-            return true;
-        }
-        return false;
-    }
-
-    // Métodos para manejo de álbumes favoritos
-    public List<AlbumFavorito> getAlbumesFavoritos(Long usuarioId) {
-        return albumFavoritoRepository.findByUsuarioId(usuarioId);
-    }
-
-    public AlbumFavorito addAlbumFavorito(Long usuarioId, AlbumFavorito albumFavorito) {
-        Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
-        if (usuario.isPresent()) {
-            albumFavorito.setUsuario(usuario.get());
-            return albumFavoritoRepository.save(albumFavorito);
-        }
-        return null;
-    }
-
-    public boolean removeAlbumFavorito(Long usuarioId, Long albumId) {
-        Optional<AlbumFavorito> albumFavorito = albumFavoritoRepository.findByIdAndUsuarioId(albumId, usuarioId);
-        if (albumFavorito.isPresent()) {
-            albumFavoritoRepository.delete(albumFavorito.get());
-            return true;
-        }
-        return false;
-    }
-
-    // Métodos para manejo de playlists favoritas
-    public List<PlaylistFavorita> getPlaylistsFavoritas(Long usuarioId) {
-        return playlistFavoritaRepository.findByUsuarioId(usuarioId);
-    }
-
-    public PlaylistFavorita addPlaylistFavorita(Long usuarioId, PlaylistFavorita playlistFavorita) {
-        Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
-        if (usuario.isPresent()) {
-            playlistFavorita.setUsuario(usuario.get());
-            return playlistFavoritaRepository.save(playlistFavorita);
-        }
-        return null;
-    }
-
-    public boolean removePlaylistFavorita(Long usuarioId, Long playlistId) {
-        Optional<PlaylistFavorita> playlistFavorita = playlistFavoritaRepository.findByIdAndUsuarioId(playlistId, usuarioId);
-        if (playlistFavorita.isPresent()) {
-            playlistFavoritaRepository.delete(playlistFavorita.get());
+    public boolean eliminarUsuario(Long id) {
+        if (usuarioRepository.existsById(id)) {
+            usuarioRepository.deleteById(id);
             return true;
         }
         return false;

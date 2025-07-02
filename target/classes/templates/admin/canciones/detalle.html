@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Canción</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .detail-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .info-row {
+            border-bottom: 1px solid #eee;
+            padding: 1rem 0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .music-icon {
+            font-size: 4rem;
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin" class="text-decoration-none">
+                        <i class="fas fa-home"></i> Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="/admin/canciones" class="text-decoration-none">
+                        <i class="fas fa-music"></i> Canciones
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+            </ol>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card detail-card">
+                    <!-- Header de la canción -->
+                    <div class="detail-header p-4 text-center">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <i class="fas fa-music music-icon"></i>
+                            </div>
+                            <div class="col-md-9">
+                                <h2 class="mb-2" th:text="${cancion.nombre}">Nombre de la Canción</h2>
+                                <p class="mb-0 opacity-75" th:if="${cancion.artista}">
+                                    <i class="fas fa-microphone me-2"></i>
+                                    <span th:text="${cancion.artista}">Artista</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información detallada -->
+                    <div class="card-body p-4">
+                        <h5 class="mb-4">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Información Detallada
+                        </h5>
+
+                        <div class="info-row">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-hashtag me-2"></i>ID:
+                                </div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-primary" th:text="${cancion.id}">1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-music me-2"></i>Nombre:
+                                </div>
+                                <div class="col-sm-8" th:text="${cancion.nombre}">
+                                    Nombre de la canción
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.artista}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-microphone me-2"></i>Artista:
+                                </div>
+                                <div class="col-sm-8" th:text="${cancion.artista}">
+                                    Nombre del artista
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.album}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-compact-disc me-2"></i>Álbum:
+                                </div>
+                                <div class="col-sm-8" th:text="${cancion.album}">
+                                    Nombre del álbum
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.duracion}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-clock me-2"></i>Duración:
+                                </div>
+                                <div class="col-sm-8" th:text="${cancion.duracion}">
+                                    3:45
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.genero}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-tags me-2"></i>Género:
+                                </div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-info fs-6" th:text="${cancion.genero}">
+                                        Rock
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.fechaCreacion}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-calendar-plus me-2"></i>Fecha de Creación:
+                                </div>
+                                <div class="col-sm-8"
+                                    th:text="${#temporals.format(cancion.fechaCreacion, 'dd/MM/yyyy HH:mm')}">
+                                    01/01/2024 10:30
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.fechaActualizacion}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-calendar-edit me-2"></i>Última Actualización:
+                                </div>
+                                <div class="col-sm-8"
+                                    th:text="${#temporals.format(cancion.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                    15/01/2024 14:20
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional si existe -->
+                        <div class="info-row" th:if="${cancion.descripcion}">
+                            <div class="row">
+                                <div class="col-sm-4 info-label">
+                                    <i class="fas fa-file-alt me-2"></i>Descripción:
+                                </div>
+                                <div class="col-sm-8" th:text="${cancion.descripcion}">
+                                    Descripción de la canción
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row" th:if="${cancion.letra}">
+                            <div class="row">
+                                <div class="col-12 info-label mb-2">
+                                    <i class="fas fa-scroll me-2"></i>Letra:
+                                </div>
+                                <div class="col-12">
+                                    <div class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                                        <pre th:text="${cancion.letra}" class="mb-0" style="white-space: pre-wrap;">
+                                            Letra de la canción...
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer con acciones -->
+                    <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="/admin/canciones" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                            </a>
+                        </div>
+                        <div>
+                            <!-- Editar -->
+                            <a th:href="@{/admin/canciones/editar/{id}(id=${cancion.id})}" class="btn btn-warning me-2">
+                                <i class="fas fa-edit me-2"></i>Editar
+                            </a>
+
+                            <!-- Eliminar -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#eliminarModal">
+                                <i class="fas fa-trash me-2"></i>Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal fade" id="eliminarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar la canción:</p>
+                    <p class="fw-bold text-danger" th:text="'&quot;' + ${cancion.nombre} + '&quot;'"></p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <form th:action="@{/admin/canciones/eliminar/{id}(id=${cancion.id})}" method="post"
+                        style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Eliminar Definitivamente
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Canciones</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Listado de Canciones</h2>
+
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Artista</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cancion, iterStat : ${canciones}">
+                    <td th:text="${iterStat.index + 1}">1</td>
+                    <td th:text="${cancion.nombre}">Nombre</td>
+                    <td th:text="${cancion.artista}">Artista</td>
+                    <td>
+                        <!-- Botón para abrir modal -->
+                        <button class="btn btn-danger" data-bs-toggle="modal"
+                            th:data-bs-target="'#eliminarModal' + ${cancion.id}">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Modales de eliminación -->
+        <div th:each="cancion : ${canciones}">
+            <div class="modal fade" th:id="'eliminarModal' + ${cancion.id}" tabindex="-1"
+                aria-labelledby="eliminarModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <!-- Encabezado del modal -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" th:id="'eliminarModalLabel' + ${cancion.id}">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                Confirmar Eliminación
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Cuerpo del modal -->
+                        <div class="modal-body">
+                            <p>¿Estás seguro de que deseas eliminar la canción:</p>
+                            <p class="fw-bold text-danger" th:text="|&quot;${cancion.nombre}&quot;|"></p>
+                            <p class="text-muted">Esta acción no se puede deshacer.</p>
+                        </div>
+
+                        <!-- Pie del modal -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form th:action="@{/admin/canciones/eliminar/{id}(id=${cancion.id})}" method="post"
+                                style="display:inline;">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
