@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${usuario.id != null ? 'Editar Usuario - Admin' : 'Nuevo Usuario - Admin'}">Nuevo Usuario - Admin
+    </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        /* Formulario */
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-help {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Checkbox personalizado */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-label {
+            font-weight: normal;
+            margin: 0;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 2rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Sección de información adicional */
+        .info-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .form-content {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Estados de campos */
+        .form-input:invalid {
+            border-color: #dc3545;
+        }
+
+        .form-input:valid {
+            border-color: #28a745;
+        }
+
+        /* Indicador de campo requerido */
+        .required-indicator {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        /* Avatar preview */
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/admin}" class="navbar-brand">🎵 Music Admin</a>
+
+            <ul class="navbar-nav">
+                <li><a th:href="@{/admin}" class="nav-link">Dashboard</a></li>
+                <li><a th:href="@{/admin/usuarios}" class="nav-link active">Usuarios</a></li>
+                <li><a th:href="@{/admin/canciones}" class="nav-link">Canciones</a></li>
+                <li><a th:href="@{/admin/playlists}" class="nav-link">Playlists</a></li>
+                <li><a th:href="@{/admin/spotify}" class="nav-link">Spotify</a></li>
+            </ul>
+
+            <a th:href="@{/logout}" class="logout-btn">
+                🚪 Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a th:href="@{/admin}">Dashboard</a>
+            <span>›</span>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <span>›</span>
+            <span th:text="${usuario.id != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Nuevo Usuario</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title" th:text="${usuario.id != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Nuevo Usuario
+            </h1>
+            <p class="page-subtitle"
+                th:text="${usuario.id != null ? 'Modifica la información del usuario' : 'Completa los datos para crear un nuevo usuario'}">
+                Completa los datos para crear un nuevo usuario</p>
+        </div>
+
+        <!-- Alertas -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Formulario -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span th:if="${usuario.id == null}">📝 Información del Nuevo Usuario</span>
+                    <span th:if="${usuario.id != null}">✏️ Editar Información del Usuario</span>
+                </h2>
+            </div>
+
+            <div class="form-content">
+                <!-- Formulario corregido con las rutas apropiadas -->
+                <form
+                    th:action="${usuario.id != null ? '/admin/usuarios/editar/' + usuario.id : '/admin/usuarios/crear'}"
+                    th:object="${usuario}" method="post">
+
+                    <!-- Campo oculto para el ID en edición -->
+                    <input type="hidden" th:field="*{id}" th:if="${usuario.id != null}">
+
+                    <!-- Indicador de campos requeridos -->
+                    <p class="required-indicator">* Campos obligatorios</p>
+
+                    <!-- Preview del avatar (solo para edición) -->
+                    <div th:if="${usuario.id != null}" class="form-group"
+                        style="align-items: center; flex-direction: row; gap: 1rem;">
+                        <div class="avatar-preview"
+                            th:text="${#strings.substring(usuario.nombre ?: 'U', 0, 1).toUpperCase()}">U</div>
+                        <div>
+                            <h4 th:text="${usuario.nombre}">Usuario</h4>
+                            <p class="form-help" th:text="'ID: ' + ${usuario.id}">ID: 1</p>
+                        </div>
+                    </div>
+
+                    <!-- Grid de campos -->
+                    <div class="form-grid">
+                        <!-- Nombre -->
+                        <div class="form-group">
+                            <label for="nombre" class="form-label required">Nombre</label>
+                            <input type="text" id="nombre" th:field="*{nombre}" class="form-input" required
+                                maxlength="50" placeholder="Ingresa el nombre">
+                            <div th:if="${#fields.hasErrors('nombre')}" class="form-error" th:errors="*{nombre}"></div>
+                        </div>
+
+                        <!-- Apellido -->
+                        <div class="form-group">
+                            <label for="apellido" class="form-label">Apellido</label>
+                            <input type="text" id="apellido" th:field="*{apellido}" class="form-input" maxlength="50"
+                                placeholder="Ingresa el apellido">
+                            <div th:if="${#fields.hasErrors('apellido')}" class="form-error" th:errors="*{apellido}">
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group form-group-full">
+                            <label for="email" class="form-label required">Email</label>
+                            <input type="email" id="email" th:field="*{email}" class="form-input" required
+                                maxlength="100" placeholder="usuario@ejemplo.com">
+                            <div th:if="${#fields.hasErrors('email')}" class="form-error" th:errors="*{email}"></div>
+                            <p class="form-help">El email debe ser único en el sistema</p>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="form-group">
+                            <label for="contrasena" class="form-label"
+                                th:classappend="${usuario.id == null ? 'required' : ''}">
+                                <span th:if="${usuario.id == null}">Contraseña</span>
+                                <span th:if="${usuario.id != null}">Nueva Contraseña</span>
+                            </label>
+                            <input type="password" id="contrasena" th:field="*{contrasena}" class="form-input"
+                                minlength="6" th:required="${usuario.id == null}"
+                                th:placeholder="${usuario.id == null ? 'Mínimo 6 caracteres' : 'Dejar vacío para mantener la actual'}">
+                            <div th:if="${#fields.hasErrors('contrasena')}" class="form-error"
+                                th:errors="*{contrasena}"></div>
+                            <p class="form-help" th:if="${usuario.id != null}">Deja este campo vacío si no deseas
+                                cambiar la contraseña</p>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="form-group">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" id="telefono" th:field="*{telefono}" class="form-input" maxlength="15"
+                                placeholder="+51 999 999 999">
+                            <div th:if="${#fields.hasErrors('telefono')}" class="form-error" th:errors="*{telefono}">
+                            </div>
+                        </div>
+
+                        <!-- Fecha de nacimiento -->
+                        <div class="form-group">
+                            <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" class="form-input"
+                                max="2024-12-31">
+                            <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="form-error"
+                                th:errors="*{fechaNacimiento}"></div>
+                        </div>
+
+                        <!-- Género -->
+                        <div class="form-group">
+                            <label for="genero" class="form-label">Género</label>
+                            <select id="genero" th:field="*{genero}" class="form-select">
+                                <option value="">Selecciona un género</option>
+                                <option th:each="gen : ${T(com.example.APIMusic.entity.Genero).values()}"
+                                    th:value="${gen}" th:text="${gen.name()}">Género</option>
+                            </select>
+                            <div th:if="${#fields.hasErrors('genero')}" class="form-error" th:errors="*{genero}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sección de configuración -->
+                    <div class="info-section">
+                        <h3 class="info-title">⚙️ Configuración de Usuario</h3>
+
+                        <div class="form-grid">
+                            <!-- Rol -->
+                            <div class="form-group">
+                                <label for="rolPrincipal" class="form-label">Rol del Usuario</label>
+                                <select id="rolPrincipal" name="rolPrincipal" class="form-select">
+                                    <option value="USER"
+                                        th:selected="${usuario.roles == null or usuario.roles.isEmpty() or (usuario.roles.contains(T(com.example.APIMusic.entity.Rol).USER) and !usuario.roles.contains(T(com.example.APIMusic.entity.Rol).ADMIN))}">
+                                        👤 Usuario Normal</option>
+                                    <option value="ADMIN"
+                                        th:selected="${usuario.roles != null and usuario.roles.contains(T(com.example.APIMusic.entity.Rol).ADMIN)}">
+                                        👑 Administrador</option>
+                                </select>
+                                <p class="form-help">
+                                    <strong>Usuario Normal:</strong> Solo rol USER<br>
+                                    <strong>Administrador:</strong> Solo rol ADMIN
+                                </p>
+                            </div>
+
+                            <!-- Estado activo -->
+                            <div class="form-group">
+                                <label class="form-label">Estado del Usuario</label>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="activo" th:field="*{activo}" class="checkbox-input"
+                                        th:checked="${usuario.activo == null or usuario.activo}">
+                                    <label for="activo" class="checkbox-label">✅ Usuario activo</label>
+                                </div>
+                                <p class="form-help">Los usuarios inactivos no pueden iniciar sesión</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Spotify (solo para edición) -->
+                    <div th:if="${usuario.id != null and (usuario.spotifyUserId != null or usuario.spotifyAccessToken != null)}"
+                        class="info-section">
+                        <h3 class="info-title">🎵 Información de Spotify</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Spotify User ID</label>
+                                <input type="text" th:value="${usuario.spotifyUserId}" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Token Expira</label>
+                                <input type="text" th:value="${usuario.spotifyTokenExpiresAt}" class="form-input"
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="form-actions">
+                        <a th:href="@{/admin/usuarios}" class="btn btn-secondary">
+                            ❌ Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:if="${usuario.id == null}">💾 Crear Usuario</span>
+                            <span th:if="${usuario.id != null}">💾 Guardar Cambios</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Validación en tiempo real
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required]');
+
+            // Validar email único (simulado)
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('blur', function () {
+                    // Aquí podrías hacer una validación AJAX para verificar si el email existe
+                    // Por ahora solo validamos formato
+                    if (this.value && !this.checkValidity()) {
+                        this.style.borderColor = '#dc3545';
+                    }
+                });
+            }
+
+            // Confirmar cambios antes de enviar (solo para edición)
+            const isEdit = document.querySelector('input[name="id"]') !== null;
+            if (isEdit) {
+                form.addEventListener('submit', function (e) {
+                    if (!confirm('¿Estás seguro de que deseas guardar los cambios?')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Auto-generar avatar preview
+            const nombreInput = document.getElementById('nombre');
+            const avatarPreview = document.querySelector('.avatar-preview');
+
+            if (nombreInput && avatarPreview) {
+                nombreInput.addEventListener('input', function () {
+                    const initial = this.value.charAt(0).toUpperCase() || 'U';
+                    avatarPreview.textContent = initial;
+                });
+            }
+
+            // Mostrar información del rol seleccionado
+            const rolSelect = document.getElementById('rolPrincipal');
+            if (rolSelect) {
+                rolSelect.addEventListener('change', function () {
+                    const helpText = this.nextElementSibling;
+                    if (this.value === 'ADMIN') {
+                        helpText.innerHTML = '<strong>Administrador:</strong> Solo tendrá rol ADMIN (acceso completo)';
+                        helpText.style.color = '#28a745';
+                    } else {
+                        helpText.innerHTML = '<strong>Usuario Normal:</strong> Solo tendrá rol USER (acceso limitado)';
+                        helpText.style.color = '#667eea';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

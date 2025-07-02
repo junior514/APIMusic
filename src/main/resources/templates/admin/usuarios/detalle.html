@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Usuario - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Sección de detalles del usuario */
+        .user-detail-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .user-profile {
+            padding: 2rem;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 2.5rem;
+        }
+
+        .user-header-info h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+        .user-header-info p {
+            margin: 0 0 0.5rem 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .user-role {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .role-admin {
+            background: #dc3545;
+            color: white;
+        }
+
+        .role-user {
+            background: #28a745;
+            color: white;
+        }
+
+        .user-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-left: 1rem;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .user-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .detail-group {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-group h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 400;
+        }
+
+        /* Acciones */
+        .actions-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+        }
+
+        .actions-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modal de confirmación */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal p {
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                display: none;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                flex-direction: column;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-detail-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .actions-section {
+            animation: fadeIn 0.7s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/admin}" class="navbar-brand">🎵 Music Admin</a>
+
+            <ul class="navbar-nav">
+                <li><a th:href="@{/admin}" class="nav-link">Dashboard</a></li>
+                <li><a th:href="@{/admin/usuarios}" class="nav-link active">Usuarios</a></li>
+                <li><a th:href="@{/admin/canciones}" class="nav-link">Canciones</a></li>
+                <li><a th:href="@{/admin/playlists}" class="nav-link">Playlists</a></li>
+                <li><a th:href="@{/admin/spotify}" class="nav-link">Spotify</a></li>
+            </ul>
+
+            <a th:href="@{/logout}" class="logout-btn">
+                🚪 Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/admin}">Dashboard</a>
+            <span>›</span>
+            <a th:href="@{/admin/usuarios}">Usuarios</a>
+            <span>›</span>
+            <span>Detalle</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Detalle de Usuario</h1>
+            <p class="page-subtitle">Información completa del usuario seleccionado</p>
+        </div>
+
+        <!-- Alertas -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Detalles del Usuario -->
+        <div class="user-detail-section">
+            <div class="section-header">
+                <h2 class="section-title">Información del Usuario</h2>
+            </div>
+
+            <div class="user-profile">
+                <!-- Header del usuario -->
+                <div class="user-header">
+                    <div class="user-avatar-large"
+                        th:text="${usuario.nombre != null ? #strings.substring(usuario.nombre, 0, 1).toUpperCase() : 'U'}">
+                        U</div>
+                    <div class="user-header-info">
+                        <h2 th:text="${usuario.nombre}">Nombre del Usuario</h2>
+                        <p th:text="${usuario.email}">email@ejemplo.com</p>
+                        <div>
+                            <span class="user-role"
+                                th:classappend="${usuario.roles != null and !usuario.roles.isEmpty() and usuario.roles.iterator().next().name() == 'ADMIN' ? 'role-admin' : 'role-user'}"
+                                th:text="${usuario.roles != null and !usuario.roles.isEmpty() ? usuario.roles.iterator().next().name() : 'USER'}">USER</span>
+                            <span class="user-status"
+                                th:classappend="${usuario.activo ? 'status-active' : 'status-inactive'}"
+                                th:text="${usuario.activo ? 'Activo' : 'Inactivo'}">Activo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de detalles -->
+                <div class="user-details-grid">
+                    <!-- Información Personal -->
+                    <div class="detail-group">
+                        <h3>👤 Información Personal</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">ID:</span>
+                            <span class="detail-value" th:text="${usuario.id}">1</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Nombre:</span>
+                            <span class="detail-value" th:text="${usuario.nombre}">Nombre del Usuario</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value" th:text="${usuario.email}">email@ejemplo.com</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Estado:</span>
+                            <span class="detail-value" th:text="${usuario.activo ? 'Activo' : 'Inactivo'}">Activo</span>
+                        </div>
+                    </div>
+
+                    <!-- Información del Sistema -->
+                    <div class="detail-group">
+                        <h3>⚙️ Información del Sistema</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Rol:</span>
+                            <span class="detail-value"
+                                th:text="${usuario.roles != null and !usuario.roles.isEmpty() ? usuario.roles.iterator().next().name() : 'USER'}">USER</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fecha de Registro:</span>
+                            <span class="detail-value"
+                                th:text="${usuario.createdAt != null ? #temporals.format(usuario.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">01/01/2024
+                                12:00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Última Actualización:</span>
+                            <span class="detail-value"
+                                th:text="${usuario.updatedAt != null ? #temporals.format(usuario.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">01/01/2024
+                                12:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas (opcional) -->
+                    <div class="detail-group">
+                        <h3>📊 Estadísticas</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Playlists Creadas:</span>
+                            <span class="detail-value">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Canciones Favoritas:</span>
+                            <span class="detail-value">0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Última Actividad:</span>
+                            <span class="detail-value">N/A</span>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de Cuenta -->
+                    <div class="detail-group">
+                        <h3>🔧 Configuración</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Verificado:</span>
+                            <span class="detail-value">No</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Notificaciones:</span>
+                            <span class="detail-value">Habilitadas</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Privacidad:</span>
+                            <span class="detail-value">Público</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Acciones -->
+        <div class="actions-section">
+            <h3 style="margin-bottom: 1rem;">Acciones Disponibles</h3>
+            <div class="actions-grid">
+                <a th:href="@{/admin/usuarios}" class="btn btn-secondary">
+                    ← Volver a la Lista
+                </a>
+                <a th:href="@{'/admin/usuarios/editar/' + ${usuario.id}}" class="btn btn-primary">
+                    ✏️ Editar Usuario
+                </a>
+                <button type="button" class="btn btn-danger"
+                    th:onclick="'confirmarEliminacion(' + ${usuario.id} + ', \'' + ${usuario.nombre} + '\')'">
+                    🗑️ Eliminar Usuario
+                </button>
+                <button type="button" class="btn btn-info"
+                    th:onclick="${usuario.activo ? 'desactivarUsuario(' + usuario.id + ')' : 'activarUsuario(' + usuario.id + ')'}">
+                    <span th:text="${usuario.activo ? '🔒 Desactivar' : '🔓 Activar'}">🔒 Desactivar</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal">
+            <h3>⚠️ Confirmar eliminación</h3>
+            <p id="confirmMessage">¿Estás seguro de que deseas eliminar este usuario?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">❌ Cancelar</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">🗑️ Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Función para confirmar eliminación
+        function confirmarEliminacion(userId, userName) {
+            const modal = document.getElementById('confirmModal');
+            const message = document.getElementById('confirmMessage');
+            const form = document.getElementById('deleteForm');
+
+            message.textContent = `¿Estás seguro de que deseas eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`;
+            form.action = `/admin/usuarios/eliminar/${userId}`;
+
+            modal.classList.add('show');
+        }
+
+        // Función para cerrar modal
+        function cerrarModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('show');
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarModal();
+            }
+        });
+
+        // Auto-ocultar alertas después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+
+        // Funciones adicionales para activar/desactivar usuario
+        function activarUsuario(userId) {
+            // Aquí puedes implementar la lógica para activar el usuario
+            console.log('Activar usuario:', userId);
+        }
+
+        function desactivarUsuario(userId) {
+            // Aquí puedes implementar la lógica para desactivar el usuario
+            console.log('Desactivar usuario:', userId);
+        }
+    </script>
+</body>
+
+</html>

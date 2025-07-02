@@ -241,6 +241,14 @@
         .icon-logout::before {
             content: '🚪';
         }
+
+        /* Estilos para mensaje cuando no hay datos */
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
     </style>
 </head>
 
@@ -248,17 +256,17 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="/admin" class="navbar-brand">🎵 Music Admin</a>
+            <a th:href="@{/admin}" class="navbar-brand">🎵 Music Admin</a>
 
             <ul class="navbar-nav">
-                <li><a href="/admin" class="nav-link">Dashboard</a></li>
-                <li><a href="/admin/usuarios" class="nav-link">Usuarios</a></li>
-                <li><a href="/admin/canciones" class="nav-link">Canciones</a></li>
-                <li><a href="/admin/playlists" class="nav-link">Playlists</a></li>
-                <li><a href="/admin/spotify" class="nav-link">Spotify</a></li>
+                <li><a th:href="@{/admin}" class="nav-link">Dashboard</a></li>
+                <li><a th:href="@{/admin/usuarios}" class="nav-link">Usuarios</a></li>
+                <li><a th:href="@{/admin/canciones}" class="nav-link">Canciones</a></li>
+                <li><a th:href="@{/admin/playlists}" class="nav-link">Playlists</a></li>
+                <li><a th:href="@{/admin/spotify}" class="nav-link">Spotify</a></li>
             </ul>
 
-            <a href="/logout" class="logout-btn">
+            <a th:href="@{/logout}" class="logout-btn">
                 <span class="icon-logout"></span>
                 Cerrar Sesión
             </a>
@@ -279,7 +287,7 @@
                 <div class="stat-icon users">
                     <span class="icon-users"></span>
                 </div>
-                <div class="stat-number" th:text="${totalUsuarios}">0</div>
+                <div class="stat-number" th:text="${totalUsuarios != null ? totalUsuarios : 0}">0</div>
                 <div class="stat-label">Total Usuarios</div>
             </div>
 
@@ -287,7 +295,7 @@
                 <div class="stat-icon music">
                     <span class="icon-music"></span>
                 </div>
-                <div class="stat-number" th:text="${totalCanciones}">0</div>
+                <div class="stat-number" th:text="${totalCanciones != null ? totalCanciones : 0}">0</div>
                 <div class="stat-label">Total Canciones</div>
             </div>
 
@@ -295,7 +303,7 @@
                 <div class="stat-icon playlists">
                     <span class="icon-playlist"></span>
                 </div>
-                <div class="stat-number" th:text="${totalPlaylists}">0</div>
+                <div class="stat-number" th:text="${totalPlaylists != null ? totalPlaylists : 0}">0</div>
                 <div class="stat-label">Total Playlists</div>
             </div>
         </div>
@@ -303,17 +311,28 @@
         <!-- Recent Users Section -->
         <div class="recent-section">
             <h2 class="section-title">Usuarios Recientes</h2>
-            <ul class="user-list">
+
+            <!-- Mostrar cuando hay usuarios -->
+            <ul class="user-list" th:if="${usuariosRecientes != null and !usuariosRecientes.isEmpty()}">
                 <li class="user-item" th:each="usuario : ${usuariosRecientes}">
-                    <div class="user-avatar" th:text="${#strings.substring(usuario.nombre, 0, 1).toUpperCase()}">U</div>
+                    <div class="user-avatar" th:text="${usuario.nombre != null and !usuario.nombre.isEmpty() ?
+                                   #strings.substring(usuario.nombre, 0, 1).toUpperCase() : 'U'}">U</div>
                     <div class="user-info">
-                        <div class="user-name" th:text="${usuario.nombre}">Nombre Usuario</div>
-                        <div class="user-email" th:text="${usuario.email}">email@ejemplo.com</div>
+                        <div class="user-name" th:text="${usuario.nombre ?: 'Nombre no disponible'}">Nombre Usuario
+                        </div>
+                        <div class="user-email" th:text="${usuario.email ?: 'Email no disponible'}">email@ejemplo.com
+                        </div>
                     </div>
-                    <div class="user-date" th:text="${#temporals.format(usuario.createdAt, 'dd/MM/yyyy')}">01/01/2024
-                    </div>
+                    <div class="user-date" th:text="${usuario.createdAt != null ?
+                                   #temporals.format(usuario.createdAt, 'dd/MM/yyyy') :
+                                   'Fecha no disponible'}">01/01/2024</div>
                 </li>
             </ul>
+
+            <!-- Mostrar cuando no hay usuarios -->
+            <div class="no-data" th:if="${usuariosRecientes == null or usuariosRecientes.isEmpty()}">
+                No hay usuarios recientes para mostrar
+            </div>
         </div>
     </main>
 </body>

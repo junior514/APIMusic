@@ -69,4 +69,13 @@ public class CancionService {
     public List<Cancion> obtenerCancionesConPreview() {
         return cancionRepository.findByPreviewUrlNotNull();
     }
+
+    public Long contarTotalCanciones() {
+        try {
+            return cancionRepository.count();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
 }

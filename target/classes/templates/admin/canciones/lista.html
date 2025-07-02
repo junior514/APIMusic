@@ -1,83 +1,617 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Canciones</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Canciones - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        /* Barra de búsqueda */
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        /* Tabla de canciones */
+        .songs-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .songs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .songs-table th,
+        .songs-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .songs-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .songs-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .songs-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .song-cover {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .song-details h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .song-details p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .song-duration {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .artist-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .artist-tag {
+            background: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #495057;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: 100%;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .songs-table {
+                font-size: 0.875rem;
+            }
+
+            .songs-table th,
+            .songs-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Modal de confirmación */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal p {
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h2 class="mb-4">Listado de Canciones</h2>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a th:href="@{/admin}" class="navbar-brand">🎵 Music Admin</a>
 
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Nombre</th>
-                    <th>Artista</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="cancion, iterStat : ${canciones}">
-                    <td th:text="${iterStat.index + 1}">1</td>
-                    <td th:text="${cancion.nombre}">Nombre</td>
-                    <td th:text="${cancion.artista}">Artista</td>
-                    <td>
-                        <!-- Botón para abrir modal -->
-                        <button class="btn btn-danger" data-bs-toggle="modal"
-                            th:data-bs-target="'#eliminarModal' + ${cancion.id}">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <ul class="navbar-nav">
+                <li><a th:href="@{/admin}" class="nav-link">Dashboard</a></li>
+                <li><a th:href="@{/admin/usuarios}" class="nav-link">Usuarios</a></li>
+                <li><a th:href="@{/admin/canciones}" class="nav-link active">Canciones</a></li>
+                <li><a th:href="@{/admin/playlists}" class="nav-link">Playlists</a></li>
+                <li><a th:href="@{/admin/spotify}" class="nav-link">Spotify</a></li>
+            </ul>
 
-        <!-- Modales de eliminación -->
-        <div th:each="cancion : ${canciones}">
-            <div class="modal fade" th:id="'eliminarModal' + ${cancion.id}" tabindex="-1"
-                aria-labelledby="eliminarModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
+            <a th:href="@{/logout}" class="logout-btn">
+                🚪 Cerrar Sesión
+            </a>
+        </div>
+    </nav>
 
-                        <!-- Encabezado del modal -->
-                        <div class="modal-header">
-                            <h5 class="modal-title" th:id="'eliminarModalLabel' + ${cancion.id}">
-                                <i class="fas fa-exclamation-triangle text-warning"></i>
-                                Confirmar Eliminación
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                        <!-- Cuerpo del modal -->
-                        <div class="modal-body">
-                            <p>¿Estás seguro de que deseas eliminar la canción:</p>
-                            <p class="fw-bold text-danger" th:text="|&quot;${cancion.nombre}&quot;|"></p>
-                            <p class="text-muted">Esta acción no se puede deshacer.</p>
-                        </div>
-
-                        <!-- Pie del modal -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <form th:action="@{/admin/canciones/eliminar/{id}(id=${cancion.id})}" method="post"
-                                style="display:inline;">
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-trash-alt"></i> Eliminar
-                                </button>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Gestión de Canciones</h1>
+            <p class="page-subtitle">Administra todas las canciones del sistema</p>
         </div>
 
+        <!-- Alertas -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Búsqueda -->
+        <div class="search-section">
+            <form th:action="@{/admin/canciones}" method="get" class="search-form">
+                <input type="text" name="buscar" th:value="${buscar}" placeholder="Buscar canciones por nombre..."
+                    class="search-input">
+                <button type="submit" class="btn btn-primary">
+                    🔍 Buscar
+                </button>
+                <a th:href="@{/admin/canciones}" class="btn btn-secondary">
+                    🔄 Limpiar
+                </a>
+                <a th:href="@{/admin/spotify}" class="btn btn-info">
+                    🎵 Agregar desde Spotify
+                </a>
+            </form>
+        </div>
+
+        <!-- Lista de Canciones -->
+        <div class="songs-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Canciones
+                    <span th:if="${buscar != null and !buscar.isEmpty()}"
+                        th:text="'- Resultados para: ' + ${buscar}"></span>
+                    <span th:if="${canciones != null}" th:text="'(' + ${canciones.size()} + ' encontradas)'"></span>
+                </h2>
+            </div>
+
+            <!-- Tabla de canciones -->
+            <div th:if="${canciones != null and !canciones.isEmpty()}">
+                <table class="songs-table">
+                    <thead>
+                        <tr>
+                            <th>Canción</th>
+                            <th>Artista(s)</th>
+                            <th>Álbum</th>
+                            <th>Duración</th>
+                            <th>Popularidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cancion : ${canciones}">
+                            <td>
+                                <div class="song-info">
+                                    <img th:src="${cancion.imagenUrl != null and !cancion.imagenUrl.isEmpty() ? cancion.imagenUrl : '/images/default-song.png'}"
+                                        th:alt="${cancion.nombre}" class="song-cover"
+                                        onerror="this.src='/images/default-song.png'">
+                                    <div class="song-details">
+                                        <h4 th:text="${cancion.nombre}">Título de la canción</h4>
+                                        <p th:if="${cancion.spotifyTrackId}"
+                                            th:text="'Spotify ID: ' + ${cancion.spotifyTrackId}">
+                                            Spotify ID</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="artist-list"
+                                    th:if="${cancion.artistas != null and !cancion.artistas.isEmpty()}">
+                                    <span th:each="artista : ${cancion.artistas}" class="artist-tag"
+                                        th:text="${artista.nombre}">Artista</span>
+                                </div>
+                                <span th:unless="${cancion.artistas != null and !cancion.artistas.isEmpty()}"
+                                    class="text-muted">Artista desconocido</span>
+                            </td>
+                            <td th:text="${cancion.album != null ? cancion.album : 'Álbum desconocido'}">Álbum</td>
+                            <td>
+                                <!-- Duración simplificada -->
+                                <span class="song-duration" th:if="${cancion.duracionMs != null}">
+                                    <span
+                                        th:with="minutos=${cancion.duracionMs / 60000}, segundos=${(cancion.duracionMs % 60000) / 1000}"
+                                        th:text="${#numbers.formatInteger(minutos, 1)} + ':' + ${#numbers.formatInteger(segundos, 2)}">3:45</span>
+                                </span>
+                                <span th:unless="${cancion.duracionMs != null}" class="text-muted">--:--</span>
+                            </td>
+                            <td>
+                                <span th:if="${cancion.popularidad != null}"
+                                    th:text="${cancion.popularidad} + '%'">85%</span>
+                                <span th:unless="${cancion.popularidad != null}" class="text-muted">--</span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a th:href="@{'/admin/canciones/ver/' + ${cancion.id}}" class="btn btn-info btn-sm">
+                                        👁️ Ver
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                        th:onclick="|confirmarEliminacion(${cancion.id}, '${cancion.nombre}')|">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Estado vacío -->
+            <div th:if="${canciones == null or canciones.isEmpty()}" class="empty-state">
+                <div class="icon">🎵</div>
+                <h3 th:if="${buscar != null and !buscar.isEmpty()}">No se encontraron canciones</h3>
+                <h3 th:unless="${buscar != null and !buscar.isEmpty()}">No hay canciones registradas</h3>
+                <p th:if="${buscar != null and !buscar.isEmpty()}"
+                    th:text="'No se encontraron canciones que coincidan con: ' + ${buscar}">
+                    No se encontraron resultados para tu búsqueda
+                </p>
+                <p th:unless="${buscar != null and !buscar.isEmpty()}">
+                    Comienza agregando canciones desde Spotify
+                </p>
+                <a th:href="@{/admin/spotify}" class="btn btn-primary">
+                    🎵 Agregar canciones desde Spotify
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Confirmar eliminación</h3>
+            <p id="confirmMessage">¿Estás seguro de que deseas eliminar esta canción?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function confirmarEliminacion(id, titulo) {
+            const modal = document.getElementById('confirmModal');
+            const message = document.getElementById('confirmMessage');
+            const form = document.getElementById('deleteForm');
+
+            message.textContent = `¿Estás seguro de que deseas eliminar la canción "${titulo}"?`;
+            form.action = `/admin/canciones/eliminar/${id}`;
+
+            modal.style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+
+        // Debug: Mostrar información en consola
+        console.log('Página de canciones cargada');
+
+        // Verificar si hay errores en la tabla
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('.songs-table tbody tr');
+            console.log(`Número de filas en la tabla: ${rows.length}`);
+
+            if (rows.length === 0) {
+                console.log('No se encontraron filas en la tabla');
+            }
+        });
+    </script>
 </body>
 
 </html>

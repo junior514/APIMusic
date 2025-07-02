@@ -30,7 +30,20 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email);
     }
 
+    // MÉTODO AGREGADO: Buscar usuarios por nombre
+    public List<Usuario> buscarPorNombre(String nombre) {
+        return usuarioRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
     public Usuario guardarUsuario(Usuario usuario) {
+        // Cifrar contraseña si no está cifrada
+        if (usuario.getContrasena() != null && !usuario.getContrasena().isEmpty()) {
+            // Verificar si ya está cifrada (las contraseñas cifradas suelen empezar con
+            // $2a$)
+            if (!usuario.getContrasena().startsWith("$2a$")) {
+                usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+            }
+        }
         return usuarioRepository.save(usuario);
     }
 
@@ -83,6 +96,16 @@ public class UsuarioService {
                 usuario.setFechaNacimiento(usuarioActualizado.getFechaNacimiento());
             }
 
+            // CORRECCIÓN: Actualizar roles correctamente
+            if (usuarioActualizado.getRoles() != null && !usuarioActualizado.getRoles().isEmpty()) {
+                usuario.setRoles(usuarioActualizado.getRoles());
+            }
+
+            // Actualizar estado activo
+            if (usuarioActualizado.getActivo() != null) {
+                usuario.setActivo(usuarioActualizado.getActivo());
+            }
+
             return usuarioRepository.save(usuario);
         }).orElse(null);
     }
@@ -93,5 +116,26 @@ public class UsuarioService {
             return true;
         }
         return false;
+    }
+
+    public Long contarTotalUsuarios() {
+        try {
+            return usuarioRepository.count();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    public List<Usuario> obtenerUsuariosRecientes(int limite) {
+        try {
+            return usuarioRepository.findTop5ByOrderByCreatedAtDesc();
+        } catch (Exception e) {
+            // Si falla, intenta por ID o retorna lista vacía
+            try {
+                return usuarioRepository.findTop5ByOrderByIdDesc();
+            } catch (Exception ex) {
+                return List.of();
+            }
+        }
     }
 }
