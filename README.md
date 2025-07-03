@@ -233,19 +233,11 @@ src/main/java/com/example/APIMusic/
 - **App Móvil**: [Enlace al repositorio de la app móvil]
 - **API Documentation**: `http://localhost:8080/swagger-ui.html`
 
-## 📸 Capturas de Pantalla
 
-### Dashboard Principal
-![Dashboard](screenshots/dashboard.png)
-*Vista principal con estadísticas del sistema*
-
-### Gestión de Usuarios
-![Usuarios](screenshots/usuarios.png)
-*CRUD completo de usuarios con filtros de búsqueda*
 ## 🎥 Video Demostrativo
 
 **[Enlace al video demo - IMPORTANTE INCLUIR]**
-
+**https://isise.sharepoint.com/:v:/s/EvaluacionEA2_ByUser/EWAx1DRAnYdAjr0xfsB3rGcBv_49p9EYwI5wcXQ2tygaOg?e=EErdX0&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D**
 El video muestra:
 1. Proceso de login y autenticación
 2. Navegación por el dashboard
@@ -288,8 +280,12 @@ spring.datasource.url=jdbc:mysql://localhost:3306/tu_bd
 | Organización, presentación, README | 4 pts | ✅ Completado |
 | **TOTAL** | **20 pts** | **✅ 20/20** |
 
----
+## 👥 Equipo de Desarrollo
 
-**Desarrollado con ❤️ para el curso de [Nombre del Curso]**
-**Universidad/Institución**: [Nombre]
-**Semestre**: [Año-Período]
+| Integrante | Rol Principal | Contribuciones Técnicas |
+|------------|---------------|------------------------|
+| **PAICO VALVERDE JUNIOR** | Backend Lead & Security | • Implementación del sistema de autenticación con Spring Security<br>• Configuración de roles y protección de rutas<br>• Desarrollo de controllers de administración<br>• Manejo de sesiones y validaciones de seguridad |
+| **PAICO VALVERDE BRAYAN** | Frontend Developer & UI/UX | • Desarrollo de templates con Thymeleaf<br>• Implementación del diseño responsive con Bootstrap<br>• Creación de formularios y interfaces de usuario<br>• Optimización de la experiencia de usuario |
+| **García Bracho Maickel Adrian** | Database & Backend Services | • Diseño y optimización de la base de datos<br>• Implementación de servicios y repositorios JPA<br>• CRUD completo de entidades (Usuarios y Canciones)<br>• Configuración de conexiones y persistencia |
+| **Gotto Santa Cruz Thomy Cristopher** | API Integration & External Services | • Integración con Spotify Web API<br>• Desarrollo del servicio de búsqueda musical<br>• Manejo de APIs externas y RestTemplate<br>• Implementación de funcionalidades de importación de canciones |
+| **Frans Espinoza Pilco** | Dashboard & Analytics | • Desarrollo del dashboard de estadísticas<br>• Implementación de reportes y métricas en tiempo real<br>• Creación de vistas de resumen y análisis<br>• Testing y documentación del proyecto |
