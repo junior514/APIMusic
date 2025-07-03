@@ -226,14 +226,6 @@ src/main/java/com/example/APIMusic/
     └── canciones/
 ```
 
-## 🔗 Enlaces Importantes
-
-- **Demo en Video**: [Enlace al video demostrativo]
-- **Repositorio GitHub**: [Enlace al repositorio]
-- **App Móvil**: [Enlace al repositorio de la app móvil]
-- **API Documentation**: `http://localhost:8080/swagger-ui.html`
-
-
 ## 🎥 Video Demostrativo
 
 **[Enlace al video demo - IMPORTANTE INCLUIR]**
