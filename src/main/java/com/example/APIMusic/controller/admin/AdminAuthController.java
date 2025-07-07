@@ -51,7 +51,7 @@ public class AdminAuthController {
         try {
             // Obtener estadísticas generales
             Long totalUsuarios = usuarioService.contarTotalUsuarios();
-            Long totalCanciones = cancionService.contarTotalCanciones();
+
             Long totalPlaylists = playlistService.contarTotalPlaylists();
 
             // Obtener usuarios recientes (últimos 5)
@@ -59,7 +59,7 @@ public class AdminAuthController {
 
             // Agregar datos al modelo
             model.addAttribute("totalUsuarios", totalUsuarios != null ? totalUsuarios : 0L);
-            model.addAttribute("totalCanciones", totalCanciones != null ? totalCanciones : 0L);
+            
             model.addAttribute("totalPlaylists", totalPlaylists != null ? totalPlaylists : 0L);
             model.addAttribute("usuariosRecientes", usuariosRecientes);
 

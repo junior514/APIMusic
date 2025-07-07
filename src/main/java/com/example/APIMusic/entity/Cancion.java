@@ -1,13 +1,13 @@
 package com.example.APIMusic.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "canciones")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Cancion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,9 +19,9 @@ public class Cancion {
     @Column(nullable = false)
     private String nombre;
 
-    @ManyToMany
-    @JoinTable(name = "cancion_artista", joinColumns = @JoinColumn(name = "cancion_id"), inverseJoinColumns = @JoinColumn(name = "artista_id"))
-    private Set<Artista> artistas = new HashSet<>();
+    // VERSIÓN SIMPLE: Usar columna TEXT para artistas
+    @Column(name = "artistas", columnDefinition = "TEXT", nullable = false)
+    private String artistas = "Artista desconocido"; // Nombres separados por comas
 
     private String album;
 
@@ -40,30 +40,29 @@ public class Cancion {
     private String audioFeatures;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     public Cancion() {
     }
 
-    public Cancion(String spotifyTrackId, String nombre, Set<Artista> artistas, String album,
-            Integer duracionMs, String imagenUrl, String previewUrl,
-            BigDecimal popularidad, String audioFeatures) {
-        this.spotifyTrackId = spotifyTrackId;
-        this.nombre = nombre;
-        this.artistas = artistas;
-        this.album = album;
-        this.duracionMs = duracionMs;
-        this.imagenUrl = imagenUrl;
-        this.previewUrl = previewUrl;
-        this.popularidad = popularidad;
-        this.audioFeatures = audioFeatures;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+        if (this.artistas == null || this.artistas.trim().isEmpty()) {
+            this.artistas = "Artista desconocido";
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Getters y Setters
-
     public Long getId() {
         return id;
     }
@@ -88,12 +87,12 @@ public class Cancion {
         this.nombre = nombre;
     }
 
-    public Set<Artista> getArtistas() {
+    public String getArtistas() {
         return artistas;
     }
 
-    public void setArtistas(Set<Artista> artistas) {
-        this.artistas = artistas;
+    public void setArtistas(String artistas) {
+        this.artistas = (artistas != null && !artistas.trim().isEmpty()) ? artistas : "Artista desconocido";
     }
 
     public String getAlbum() {
@@ -158,5 +157,59 @@ public class Cancion {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // Métodos de utilidad
+    public String getArtistasString() {
+        return artistas != null ? artistas : "Artista desconocido";
+    }
+
+    public String getDuracionFormatted() {
+        if (duracionMs == null || duracionMs <= 0)
+            return "0:00";
+        int seconds = duracionMs / 1000;
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
+    }
+
+    public boolean hasPreview() {
+        return previewUrl != null && !previewUrl.trim().isEmpty();
+    }
+
+    public String getPrimaryArtist() {
+        if (artistas == null || artistas.trim().isEmpty())
+            return "Artista desconocido";
+        return artistas.split(",")[0].trim();
+    }
+
+    public boolean isPopular() {
+        return popularidad != null && popularidad.compareTo(new BigDecimal("50")) > 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Cancion{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", artistas='" + artistas + '\'' +
+                ", album='" + album + '\'' +
+                ", hasPreview=" + hasPreview() +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Cancion))
+            return false;
+        Cancion cancion = (Cancion) o;
+        return spotifyTrackId != null && spotifyTrackId.equals(cancion.spotifyTrackId);
+    }
+
+    @Override
+    public int hashCode() {
+        return spotifyTrackId != null ? spotifyTrackId.hashCode() : 0;
     }
 }

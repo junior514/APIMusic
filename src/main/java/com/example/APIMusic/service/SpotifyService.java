@@ -1,21 +1,31 @@
 package com.example.APIMusic.service;
 
-
 import com.example.APIMusic.entity.Cancion;
-import com.example.APIMusic.repository.ArtistaRepository;
 import com.example.APIMusic.repository.CancionRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.nio.charset.StandardCharsets;
-import java.net.URLEncoder;
+
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class SpotifyService {
+
+    private static final Logger log = LoggerFactory.getLogger(SpotifyService.class);
+
+    @Autowired
+    private CancionRepository cancionRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${spotify.client.id}")
     private String clientId;
@@ -23,95 +33,251 @@ public class SpotifyService {
     @Value("${spotify.client.secret}")
     private String clientSecret;
 
-    @Value("${spotify.api.base.url}")
-    private String apiBaseUrl;
+    private String accessToken;
+    private long tokenExpirationTime;
 
-    @Value("${spotify.accounts.base.url}")
-    private String accountsBaseUrl;
+    /**
+     * Obtener token de acceso de Spotify
+     */
+    private String obtenerAccessToken() {
+        // Si el token sigue siendo válido, retornarlo
+        if (accessToken != null && System.currentTimeMillis() < tokenExpirationTime) {
+            return accessToken;
+        }
 
-    private final CancionRepository cancionRepository;
-    private final ArtistaRepository artistaRepository;
-    private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate;
-
-    public SpotifyService(CancionRepository cancionRepository, ArtistaRepository artistaRepository) {
-        this.cancionRepository = cancionRepository;
-        this.artistaRepository = artistaRepository;
-        this.objectMapper = new ObjectMapper();
-        this.restTemplate = new RestTemplate();
-    }
-
-    public List<Cancion> buscarYCargarCanciones(String nombre) {
         try {
-            String token = obtenerAccessToken(); // <-- asegúrate de tener este método funcionando bien
-            String query = URLEncoder.encode(nombre, StandardCharsets.UTF_8);
-
-            String url = "https://api.spotify.com/v1/search?q=" + query + "&type=track&limit=10";
+            String auth = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
-            headers.set("Accept", "application/json");
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.set("Authorization", "Basic " + auth);
 
+            String body = "grant_type=client_credentials";
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    "https://accounts.spotify.com/api/token",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                accessToken = (String) responseBody.get("access_token");
+                Integer expiresIn = (Integer) responseBody.get("expires_in");
+
+                // Calcular tiempo de expiración (reducir 5 minutos para seguridad)
+                tokenExpirationTime = System.currentTimeMillis() + ((expiresIn - 300) * 1000L);
+
+                log.info("Token de Spotify obtenido exitosamente");
+                return accessToken;
+            }
+        } catch (Exception e) {
+            log.error("Error obteniendo token de Spotify: {}", e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    /**
+     * NUEVO: Buscar canciones en tiempo real sin guardar en base de datos
+     */
+    public List<Cancion> buscarCancionesEnTiempoReal(String query) {
+        try {
+            String accessToken = obtenerAccessToken();
+            if (accessToken == null) {
+                log.error("No se pudo obtener el token de acceso de Spotify");
+                return new ArrayList<>();
+            }
+
+            // Configurar headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, String.class);
+            // URL de búsqueda de Spotify
+            String url = "https://api.spotify.com/v1/search?q=" +
+                    URLEncoder.encode(query, StandardCharsets.UTF_8) +
+                    "&type=track&limit=50&market=ES";
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String json = response.getBody();
-                // Aquí debes mapear la respuesta a tus objetos Cancion, dependiendo de tu DTO
-                // Usa Jackson o Gson para convertir el JSON
-                return new ArrayList<>(); // ← aquí pones tu lógica para transformar a List<Cancion>
-            } else {
-                System.out.println("Error al consultar Spotify: " + response.getStatusCode());
-                return List.of();
+            log.info("Buscando en tiempo real en Spotify: {}", query);
+
+            // Hacer petición a Spotify
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return procesarRespuestaSpotify(response.getBody(), false); // false = no guardar
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return List.of();
+            log.error("Error en búsqueda en tiempo real: {}", e.getMessage(), e);
         }
+
+        return new ArrayList<>();
     }
 
-    private String obtenerAccessToken() {
-        String url = accountsBaseUrl + "/api/token";
+    /**
+     * NUEVO: Buscar canciones en tiempo real solo con preview
+     */
+    public List<Cancion> buscarCancionesEnTiempoRealConPreview(String query) {
+        List<Cancion> todasLasCanciones = buscarCancionesEnTiempoReal(query);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        String credentials = clientId + ":" + clientSecret;
-        String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
-        headers.set("Authorization", "Basic " + encodedCredentials);
+        // Filtrar solo las que tienen preview URL
+        return todasLasCanciones.stream()
+                .filter(cancion -> cancion.getPreviewUrl() != null &&
+                        !cancion.getPreviewUrl().trim().isEmpty())
+                .collect(Collectors.toList());
+    }
 
-        String body = "grant_type=client_credentials";
+    /**
+     * Método mejorado para procesar respuesta de Spotify
+     *
+     * @param spotifyResponse - respuesta de la API de Spotify
+     * @param guardarEnBD     - si true, guarda en base de datos; si false, solo
+     *                        retorna objetos
+     */
+    private List<Cancion> procesarRespuestaSpotify(Map<String, Object> spotifyResponse, boolean guardarEnBD) {
+        List<Cancion> canciones = new ArrayList<>();
 
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-        JsonNode json = null;
         try {
-            json = objectMapper.readTree(response.getBody());
+            Map<String, Object> tracks = (Map<String, Object>) spotifyResponse.get("tracks");
+            if (tracks == null)
+                return canciones;
+
+            List<Map<String, Object>> items = (List<Map<String, Object>>) tracks.get("items");
+            if (items == null)
+                return canciones;
+
+            for (Map<String, Object> item : items) {
+                try {
+                    Cancion cancion = crearCancionDesdeSpotify(item, guardarEnBD);
+
+                    if (cancion != null) {
+                        if (guardarEnBD) {
+                            // Verificar si ya existe antes de guardar
+                            if (!cancionRepository.existsBySpotifyTrackId(cancion.getSpotifyTrackId())) {
+                                cancion = cancionRepository.save(cancion);
+                                log.info("Canción guardada: {}", cancion.getNombre());
+                            } else {
+                                // Si ya existe, obtener de la BD usando Optional
+                                Optional<Cancion> existente = cancionRepository
+                                        .findBySpotifyTrackId(cancion.getSpotifyTrackId());
+                                if (existente.isPresent()) {
+                                    cancion = existente.get();
+                                }
+                            }
+                        }
+                        // Si no se guarda en BD, simplemente agregar a la lista
+                        canciones.add(cancion);
+                    }
+                } catch (Exception e) {
+                    log.warn("Error procesando canción individual: {}", e.getMessage());
+                }
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error procesando respuesta de Spotify: {}", e.getMessage(), e);
+        }
+
+        return canciones;
+    }
+
+    /**
+     * Método mejorado para crear canción desde respuesta de Spotify
+     */
+    private Cancion crearCancionDesdeSpotify(Map<String, Object> track, boolean procesarArtistas) {
+        try {
+            Cancion cancion = new Cancion();
+
+            // Información básica
+            cancion.setNombre((String) track.get("name"));
+            cancion.setSpotifyTrackId((String) track.get("id"));
+            cancion.setPreviewUrl((String) track.get("preview_url"));
+
+            // Popularidad - convertir a BigDecimal
+            Object popularity = track.get("popularity");
+            if (popularity instanceof Integer) {
+                cancion.setPopularidad(new BigDecimal((Integer) popularity));
+            }
+
+            // Duración
+            Object durationMs = track.get("duration_ms");
+            if (durationMs instanceof Integer) {
+                cancion.setDuracionMs((Integer) durationMs);
+            }
+
+            // Artistas - VERSIÓN SIMPLE: usar String separado por comas
+            List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
+            if (artists != null && !artists.isEmpty()) {
+                String artistasString = artists.stream()
+                        .map(artistData -> (String) artistData.get("name"))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.joining(", "));
+                cancion.setArtistas(artistasString);
+            }
+
+            // Álbum
+            Map<String, Object> album = (Map<String, Object>) track.get("album");
+            if (album != null) {
+                cancion.setAlbum((String) album.get("name"));
+
+                // Imagen del álbum
+                List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+                if (images != null && !images.isEmpty()) {
+                    // Tomar la primera imagen (suele ser la más grande)
+                    cancion.setImagenUrl((String) images.get(0).get("url"));
+                }
+            }
+
+            // Verificar que tenga los campos mínimos requeridos
+            if (cancion.getNombre() == null || cancion.getSpotifyTrackId() == null) {
+                log.warn("Canción incompleta, faltan datos básicos");
+                return null;
+            }
+
+            return cancion;
+
+        } catch (Exception e) {
+            log.error("Error creando canción desde Spotify: {}", e.getMessage(), e);
             return null;
         }
-
-        return json.path("access_token").asText();
     }
 
-    private String obtenerAudioFeatures(String trackId, String accessToken) {
+    /**
+     * Método existente modificado para usar la nueva lógica
+     */
+    public List<Cancion> buscarYCargarCanciones(String query) {
         try {
-            String url = apiBaseUrl + "/audio-features/" + trackId;
+            String accessToken = obtenerAccessToken();
+            if (accessToken == null) {
+                log.error("No se pudo obtener el token de acceso de Spotify");
+                return new ArrayList<>();
+            }
 
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            HttpEntity<String> request = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            String url = "https://api.spotify.com/v1/search?q=" +
+                    URLEncoder.encode(query, StandardCharsets.UTF_8) +
+                    "&type=track&limit=50&market=ES";
 
-            return response.getBody(); // Guardamos el JSON completo como string
+            log.info("Buscando y guardando en Spotify: {}", query);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return procesarRespuestaSpotify(response.getBody(), true); // true = guardar en BD
+            }
+
         } catch (Exception e) {
-            return null;
+            log.error("Error buscando y cargando canciones: {}", e.getMessage(), e);
         }
+
+        return new ArrayList<>();
     }
 }

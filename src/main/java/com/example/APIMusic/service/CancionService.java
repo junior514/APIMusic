@@ -14,34 +14,49 @@ public class CancionService {
     @Autowired
     private CancionRepository cancionRepository;
 
+    /**
+     * Obtener todas las canciones
+     */
     public List<Cancion> obtenerTodas() {
         return cancionRepository.findAll();
     }
 
+    /**
+     * Obtener canción por ID
+     */
     public Optional<Cancion> obtenerPorId(Long id) {
         return cancionRepository.findById(id);
     }
 
+    /**
+     * Guardar canción
+     */
     public Cancion guardar(Cancion cancion) {
         return cancionRepository.save(cancion);
     }
 
-    public Cancion actualizar(Long id, Cancion nuevaData) {
-        return cancionRepository.findById(id).map(cancion -> {
-            cancion.setSpotifyTrackId(nuevaData.getSpotifyTrackId());
-            cancion.setNombre(nuevaData.getNombre());
-            cancion.setArtistas(nuevaData.getArtistas());
-            cancion.setAlbum(nuevaData.getAlbum());
-            cancion.setDuracionMs(nuevaData.getDuracionMs());
-            cancion.setImagenUrl(nuevaData.getImagenUrl());
-            cancion.setPreviewUrl(nuevaData.getPreviewUrl());
-            cancion.setPopularidad(nuevaData.getPopularidad());
-            cancion.setAudioFeatures(nuevaData.getAudioFeatures());
-            cancion.setUpdatedAt(java.time.LocalDateTime.now());
-            return cancionRepository.save(cancion);
-        }).orElse(null);
+    /**
+     * Actualizar canción
+     */
+    public Cancion actualizar(Long id, Cancion cancionActualizada) {
+        return cancionRepository.findById(id)
+                .map(cancion -> {
+                    cancion.setNombre(cancionActualizada.getNombre());
+                    cancion.setArtistas(cancionActualizada.getArtistas());
+                    cancion.setAlbum(cancionActualizada.getAlbum());
+                    cancion.setDuracionMs(cancionActualizada.getDuracionMs());
+                    cancion.setImagenUrl(cancionActualizada.getImagenUrl());
+                    cancion.setPreviewUrl(cancionActualizada.getPreviewUrl());
+                    cancion.setPopularidad(cancionActualizada.getPopularidad());
+                    cancion.setAudioFeatures(cancionActualizada.getAudioFeatures());
+                    return cancionRepository.save(cancion);
+                })
+                .orElse(null);
     }
 
+    /**
+     * Eliminar canción
+     */
     public boolean eliminar(Long id) {
         if (cancionRepository.existsById(id)) {
             cancionRepository.deleteById(id);
@@ -50,32 +65,59 @@ public class CancionService {
         return false;
     }
 
+    /**
+     * Buscar canciones por nombre
+     */
     public List<Cancion> buscarPorNombre(String nombre) {
         return cancionRepository.findByNombreContainingIgnoreCase(nombre);
     }
 
+    /**
+     * Buscar canciones por artista
+     */
     public List<Cancion> buscarPorArtistas(String nombreArtista) {
-        return cancionRepository.findByArtistas_NombreContainingIgnoreCase(nombreArtista);
+        return cancionRepository.findByArtistasContainingIgnoreCase(nombreArtista);
     }
 
+    /**
+     * Buscar canciones por álbum
+     */
     public List<Cancion> buscarPorAlbum(String album) {
         return cancionRepository.findByAlbumContainingIgnoreCase(album);
     }
 
+    /**
+     * Verificar si existe por Spotify Track ID
+     */
     public boolean existePorSpotifyTrackId(String spotifyTrackId) {
         return cancionRepository.existsBySpotifyTrackId(spotifyTrackId);
     }
 
+    /**
+     * Obtener canciones con preview disponible
+     */
     public List<Cancion> obtenerCancionesConPreview() {
-        return cancionRepository.findByPreviewUrlNotNull();
+        return cancionRepository.findCancionesWithPreview();
     }
 
-    public Long contarTotalCanciones() {
-        try {
-            return cancionRepository.count();
-        } catch (Exception e) {
-            return 0L;
-        }
+    /**
+     * Buscar canciones por nombre que tengan preview
+     */
+    public List<Cancion> buscarPorNombreConPreview(String nombre) {
+        return cancionRepository.findByNombreContainingIgnoreCaseWithPreview(nombre);
     }
 
+    /**
+     * Obtener canciones ordenadas por popularidad
+     */
+    public List<Cancion> obtenerPorPopularidad() {
+        return cancionRepository.findAllByOrderByPopularidadDesc();
+    }
+
+    /**
+     * Buscar canción por Spotify Track ID
+     */
+    public Optional<Cancion> obtenerPorSpotifyTrackId(String spotifyTrackId) {
+        return cancionRepository.findBySpotifyTrackId(spotifyTrackId);
+    }
 }

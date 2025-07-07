@@ -1,53 +1,56 @@
 package com.example.APIMusic.security;
 
+import com.example.APIMusic.service.UsuarioService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JWTUtil jwtUtil;
+    @Autowired
+    private JWTUtil jwtUtil;
 
-    public JwtAuthenticationFilter(JWTUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        try {
+            String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
 
-            try {
                 if (jwtUtil.validateToken(token)) {
-                    String username = jwtUtil.getSubject(token);
+                    String email = jwtUtil.getSubject(token);
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            username, null, Collections.emptyList());
+                    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        if (userDetails != null) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                        }
+                    }
                 }
-            } catch (Exception e) {
-                // Log del error pero continúa sin autenticar
-                logger.error("Error al procesar token JWT: " + e.getMessage());
             }
+        } catch (Exception e) {
+            logger.error("Error en JwtAuthenticationFilter: ", e);
+            // No lanzar excepción aquí, solo log del error
         }
 
         filterChain.doFilter(request, response);
@@ -56,11 +59,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-
-        // No aplicar filtro a rutas públicas
+        // No aplicar filtro a rutas de autenticación
         return path.startsWith("/api/auth/") ||
-                path.equals("/error") ||
-                path.startsWith("/actuator/") ||
+                path.startsWith("/admin/") ||
+                path.startsWith("/css/") ||
+                path.startsWith("/js/") ||
+                path.startsWith("/images/") ||
                 path.startsWith("/h2-console/") ||
                 path.startsWith("/swagger-ui/") ||
                 path.startsWith("/v3/api-docs/");
