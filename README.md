@@ -3,10 +3,10 @@
 ## **¿Qué es?**
 API en **Spring Boot** para gestionar usuarios y buscar música con **Spotify**.
 
-##  **Tecnologías**
+## **Tecnologías**
 Java 17 | Spring Boot | MySQL | Spotify API
 
-##  **Configuración**
+## **Configuración**
 ```properties
 # MySQL
 spring.datasource.url=jdbc:mysql://localhost:3306/apimusic_db
@@ -18,50 +18,98 @@ spotify.client.id=tu_client_id
 spotify.client.secret=tu_client_secret
 ```
 
-##  **Instalación**
+## **Instalación**
 ```bash
-git clone <repo>
+git clone https://github.com/tu-usuario/api-music.git
+cd api-music
 CREATE DATABASE apimusic_db;
 mvn clean install
 mvn spring-boot:run
 ```
 
-##  **Endpoints**
+## **Endpoints**
 
-### ** Usuarios**
+### **👥 Usuarios**
 - `GET /api/usuarios` - Listar usuarios
 - `POST /api/usuarios` - Crear usuario
 
-### ** Spotify**
-- `GET /api/spotify/search?q=cancion` - Buscar música
+### **🎵 Canciones**
+- `GET /api/canciones` - Listar todas las canciones
+- `GET /api/canciones/con-preview` - Canciones con preview
+- `GET /api/canciones/{id}` - Obtener canción por ID
+- `POST /api/canciones` - Crear nueva canción
+- `PUT /api/canciones/{id}` - Actualizar canción
+- `DELETE /api/canciones/{id}` - Eliminar canción
+- `GET /api/canciones/buscar/nombre` - Buscar por nombre
+- `GET /api/canciones/buscar/artista` - Buscar por artista
+- `GET /api/canciones/buscar/album` - Buscar por álbum
+
+### **⭐ Favoritos**
+- `GET /api/favoritos` - Obtener favoritos del usuario
+- `POST /api/favoritos/{cancionId}` - Agregar a favoritos
+- `DELETE /api/favoritos/{cancionId}` - Quitar de favoritos
+- `GET /api/favoritos/verificar/{cancionId}` - Verificar si es favorito
+- `GET /api/favoritos/estadisticas` - Estadísticas de favoritos
+
+### **🎧 Spotify**
+- `GET /api/spotify/buscar-tiempo-real?query=cancion` - Búsqueda en tiempo real
+- `GET /api/spotify/buscar-tiempo-real/con-preview` - Búsqueda con preview
+- `GET /api/spotify/recomendaciones` - Obtener recomendaciones
+- `POST /api/spotify/cargar-con-preview-garantizado` - Cargar canciones con preview
+- `POST /api/spotify/canciones/cargar-todas` - Carga masiva de canciones
+- `GET /api/spotify/estadisticas-preview` - Estadísticas de preview
+- `DELETE /api/spotify/limpiar-sin-preview` - Limpiar canciones sin preview
+
+#### **Endpoints Públicos (Testing)**
+- `GET /api/spotify/debug-preview-public` - Debug público de preview
+- `POST /api/spotify/cargar-preview-publico` - Carga pública de testing
+- `GET /api/spotify/debug-spotify-raw` - Debug raw de Spotify
+- `GET /api/spotify/test-multiple-artists` - Test múltiples artistas
+- `GET /api/spotify/verify-spotify-config` - Verificar configuración
+- `GET /api/spotify/health` - Estado de la API
+
+### **🔐 Autenticación**
+- `POST /api/auth/login` - Iniciar sesión
 - `POST /api/auth/client-token` - Obtener token
 
-##  **Ejemplos**
+## **Ejemplos**
 
 ### Crear Usuario
 ```bash
 POST http://localhost:8080/api/usuarios
 {
-  "nombre": "Juior",
-  "email": "junior@Gemail.com",
+  "nombre": "Junior",
+  "email": "junior@gmail.com",
   "contrasena": "123456"
 }
 ```
 
-### Buscar Música
+### Buscar Música en Tiempo Real
 ```bash
-GET http://localhost:8080/api/spotify/search?q=Queen
+GET http://localhost:8080/api/spotify/buscar-tiempo-real?query=Queen
+Authorization: Bearer tu_token
 ```
 
-##  **Documentación Postman**
+### Agregar a Favoritos
+```bash
+POST http://localhost:8080/api/favoritos/123
+Authorization: Bearer tu_token
+```
+
+### Obtener Recomendaciones
+```bash
+GET http://localhost:8080/api/spotify/recomendaciones
+Authorization: Bearer tu_token
+```
+
+## **Documentación Postman**
 
 ### [**COLECCIÓN DE POSTMAN - API SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
 
 ### [**COLECCIÓN DE POSTMAN - API MUSIC CON SPOTIFY**](https://documenter.getpostman.com/view/40843950/2sB2x6kBmo#7b715c79-a01d-435f-8adf-2eb1a4fef6fc)
 
 ---
-** ¡Listo para usar!**
-
+**🎵 ¡Listo para usar!**
 
 
 
